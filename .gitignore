@@ -29,3 +29,13 @@
 *.exe
 *.out
 *.app
+
+visual/.vs/visual/v16/
+
+visual/Release/
+
+visual/visual/Debug/
+
+visual/visual/
+
+visual/*
