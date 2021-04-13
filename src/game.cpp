@@ -25,13 +25,14 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	time = 0.0f;
 	elapsed_time = 0.0f;
 
-	font.loadTGA("data/bitmap-font-white.tga"); //load bitmap-font image
-	minifont.loadTGA("data/mini-font-white-4x6.tga"); //load bitmap-font image
-	sprite.loadTGA("data/spritesheet.tga"); //example to load an sprite
+	font.loadTGA("data/bitmap-font-black.tga"); //load bitmap-font image
+	minifont.loadTGA("data/mini-font-black-4x6.tga"); //load bitmap-font image
+	sprite.loadTGA("data/background2.tga"); //example to load an sprite
 
-	//enableAudio(); //enable this line if you plan to add audio to your application
-	//synth.playSample("data/coin.wav",1,true);
+	enableAudio(); //enable this line if you plan to add audio to your application
+	
 	//synth.osc1.amplitude = 0.5;
+	
 }
 
 //what to do when the image has to be draw
@@ -49,11 +50,33 @@ void Game::render(void)
 		//framebuffer.drawImage( sprite, 0, 0 );					//draws full image
 		framebuffer.drawImage( sprite, 0, 0, framebuffer.width, framebuffer.height );			//draws a scaled image
 		//framebuffer.drawImage( sprite, 0, 0, Area(0,0,14,18) );	//draws only a part of an image
-		framebuffer.drawText( "Hello World", 0, 0, font );				//draws some text using a bitmap font in an image (assuming every char is 7x9)
-		//framebuffer.drawText( toString(time), 1, 10, minifont,4,6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
+		framebuffer.drawText( "4 DIMENSION", framebuffer.width /4, framebuffer.height /5, font );				
+		//draws some text using a bitmap font in an image (assuming every char is 7x9)
+		framebuffer.drawText( toString(time), 1, 10, minifont,4,6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
+		//void drawText( std::string text, int x, int y, const Image& bitmapfont, int font_w = 7, int font_h = 9, int first_char = 32);
+		bottonIntro(framebuffer);
+		
+		//audio intro
+		if (time < 31.0) {
+			synth.playSample("data/lassambience1.wav", 2, false);
+		}
+		
+		
 
 	//send image to screen
 	showFramebuffer(&framebuffer);
+}
+
+void Game::bottonIntro(Image& framebuffer)
+{
+	SDL_MouseMotionEvent event; 
+	framebuffer.drawRectangle(framebuffer.width / 2 -13, framebuffer.height / 2 + framebuffer.height / 3 -3, 29, 11, (255, 80, 100));
+	framebuffer.drawRectangle(framebuffer.width / 2 -12, framebuffer.height / 2 + framebuffer.height / 3 -2, 27, 9, bgcolor.RED);
+	framebuffer.drawText("Inicio", framebuffer.width /2 -10, framebuffer.height / 2 +framebuffer.height / 3, minifont, 4, 6);
+	/*if (event.x> framebuffer.width / 4)
+	{
+		framebuffer.drawRectangle(framebuffer.width / 4, framebuffer.height / 2, 15, 15, bgcolor.YELLOW);
+	}*/
 }
 
 void Game::update(double seconds_elapsed)
