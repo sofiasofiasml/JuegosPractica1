@@ -3,6 +3,7 @@
 #include "input.h"
 #include "image.h"
 
+#include "mygame.h"
 #include <cmath>
 
 Game* Game::instance = NULL;
@@ -11,6 +12,11 @@ Image font;
 Image minifont;
 Image sprite;
 Color bgcolor(130, 80, 100);
+
+Stage* intro_stage;
+Stage* play_stage;
+Stage* current_stage;
+
 
 Game::Game(int window_width, int window_height, SDL_Window* window)
 {
@@ -24,6 +30,10 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	frame = 0;
 	time = 0.0f;
 	elapsed_time = 0.0f;
+
+	intro_stage = new IntroStage();
+	play_stage = new PlayStage();
+	current_stage = intro_stage;
 
 	font.loadTGA("data/bitmap-font-black.tga"); //load bitmap-font image
 	minifont.loadTGA("data/mini-font-black-4x6.tga"); //load bitmap-font image
@@ -40,27 +50,18 @@ void Game::render(void)
 {
 	//Create a new Image (or we could create a global one if we want to keep the previous frame)
 	Image framebuffer(160, 120); //do not change framebuffer size
-
+	 
 	//add your code here to fill the framebuffer
 	//...
+	
 
 	//some new useful functions
-		framebuffer.fill( bgcolor );								//fills the image with one color
-		//framebuffer.drawLine( 0, 0, 100,100, Color::RED );		//draws a line
-		//framebuffer.drawImage( sprite, 0, 0 );					//draws full image
-		framebuffer.drawImage( sprite, 0, 0, framebuffer.width, framebuffer.height );			//draws a scaled image
-		//framebuffer.drawImage( sprite, 0, 0, Area(0,0,14,18) );	//draws only a part of an image
-		framebuffer.drawText( "4 DIMENSION", framebuffer.width /4, framebuffer.height /5, font );				
-		//draws some text using a bitmap font in an image (assuming every char is 7x9)
-		framebuffer.drawText( toString(time), 1, 10, minifont,4,6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
-		//void drawText( std::string text, int x, int y, const Image& bitmapfont, int font_w = 7, int font_h = 9, int first_char = 32);
-		bottonIntro(framebuffer);
+
 		
-		//audio intro
-		if (time < 31.0) {
-			synth.playSample("data/lassambience1.wav", 2, false);
-		}
-		
+	
+	current_stage->render(framebuffer, minifont, sprite, font);
+		//bottonIntro(framebuffer); //Probar
+		//world.Intro(framebuffer, minifont);
 		
 
 	//send image to screen
@@ -69,14 +70,27 @@ void Game::render(void)
 
 void Game::bottonIntro(Image& framebuffer)
 {
-	SDL_MouseMotionEvent event; 
-	framebuffer.drawRectangle(framebuffer.width / 2 -13, framebuffer.height / 2 + framebuffer.height / 3 -3, 29, 11, (255, 80, 100));
-	framebuffer.drawRectangle(framebuffer.width / 2 -12, framebuffer.height / 2 + framebuffer.height / 3 -2, 27, 9, bgcolor.RED);
-	framebuffer.drawText("Inicio", framebuffer.width /2 -10, framebuffer.height / 2 +framebuffer.height / 3, minifont, 4, 6);
-	/*if (event.x> framebuffer.width / 4)
+	float squareBig_PointW = framebuffer.width / 2 - 13; 
+	float squareBig_PointH = framebuffer.height / 2 + framebuffer.height / 3 - 3;
+	float squareBig_W = 29;
+	float squareBig_H = 11;
+	
+	framebuffer.drawRectangle(squareBig_PointW, squareBig_PointH , squareBig_W, squareBig_H, (255, 80, 100));
+	framebuffer.drawRectangle(squareBig_PointW + 1 , squareBig_PointH + 1, squareBig_W -2, squareBig_H -2, bgcolor.RED);
+	
+	//Recla de tres
+
+	Vector2 v2 = Input::mouse_position; 
+	int window_width, window_height;
+	SDL_GetWindowSize(window, &window_width, &window_height);
+	std::cout << window_width <<" "<< window_height << "\n";
+	if (v2.x> squareBig_PointW )
 	{
-		framebuffer.drawRectangle(framebuffer.width / 4, framebuffer.height / 2, 15, 15, bgcolor.YELLOW);
-	}*/
+		framebuffer.drawRectangle(squareBig_PointW + 1, squareBig_PointH + 1, squareBig_W - 2, squareBig_H - 2, bgcolor.YELLOW);
+	}
+	
+	framebuffer.drawText("Inicio", framebuffer.width / 2 - 10, framebuffer.height / 2 + framebuffer.height / 3, minifont, 4, 6);
+	
 }
 
 void Game::update(double seconds_elapsed)
@@ -95,6 +109,8 @@ void Game::update(double seconds_elapsed)
 	//example of 'was pressed'
 	if (Input::wasKeyPressed(SDL_SCANCODE_A)) //if key A was pressed
 	{
+		current_stage = play_stage; 
+		synth.stopAll(); 
 	}
 	if (Input::wasKeyPressed(SDL_SCANCODE_Z)) //if key Z was pressed
 	{
@@ -136,6 +152,10 @@ void Game::onGamepadButtonUp(SDL_JoyButtonEvent event)
 
 void Game::onMouseMove(SDL_MouseMotionEvent event)
 {
+	/*if (event.x > 20)
+	{
+		std::cout << "Entra"  << "\n";
+	}*/
 }
 
 void Game::onMouseButtonDown( SDL_MouseButtonEvent event )

@@ -10,6 +10,7 @@
 #include "utils.h"
 #include "synth.h"
 
+
 class Game
 {
 public:
@@ -29,6 +30,9 @@ public:
 
 	//audio
 	Synth synth;
+
+	
+	
 
 	//ctor
 	Game( int window_width, int window_height, SDL_Window* window );
