@@ -9,6 +9,7 @@
 #include "image.h"
 #include "utils.h"
 #include "synth.h"
+#include "mygame.h"
 
 
 class Game
@@ -27,13 +28,16 @@ public:
 	float elapsed_time;
 	int fps;
 	bool must_exit;
+	
 
 	//audio
 	Synth synth;
 
-	 
-	
-
+	//
+	Stage* intro_stage;
+	Stage* play_stage;
+	Stage* current_stage;
+	World* my_world;
 	//ctor
 	Game( int window_width, int window_height, SDL_Window* window );
 

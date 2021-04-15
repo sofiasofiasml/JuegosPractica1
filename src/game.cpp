@@ -3,21 +3,18 @@
 #include "input.h"
 #include "image.h"
 
-#include "mygame.h"
+
 #include <cmath>
 
 Game* Game::instance = NULL;
-Image font;
-Image minifont;
-Image sprite;
+//Image sprite;
 
-Color bgcolor(130, 80, 100);
 
-Stage* intro_stage;
-Stage* play_stage;
-Stage* current_stage;
+//Color bgcolor(130, 80, 100);
+
+
 //instance world
-World* my_world;
+
 
 Game::Game(int window_width, int window_height, SDL_Window* window)
 {
@@ -31,9 +28,9 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	frame = 0;
 	time = 0.0f;
 	elapsed_time = 0.0f;
-
 	intro_stage = new IntroStage();
 	play_stage = new PlayStage();
+
 	current_stage = intro_stage;
 
 	
@@ -43,96 +40,75 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	//synth.osc1.amplitude = 0.5;
 	//Instance World
 	my_world = new World();
-	font.loadTGA("data/bitmap-font-black.tga"); //load bitmap-font image
-	minifont.loadTGA("data/mini-font-black-4x6.tga"); //load bitmap-font image
-	sprite.loadTGA("data/background2.tga"); //example to load an sprite
 
+	my_world->font.loadTGA("data/bitmap-font-black.tga"); //load bitmap-font image
+	my_world->minifont.loadTGA("data/mini-font-black-4x6.tga"); //load bitmap-font image
+	my_world->sprite.loadTGA("data/background2.tga"); //example to load an sprite
+	my_world->player1.Implayer.loadTGA("data/spritesheet.tga"); //example to load an sprite
+	my_world->player2.Implayer.loadTGA("data/spritesheet.tga"); //example to load an sprite
 
-	
 }
 
 //what to do when the image has to be draw
 void Game::render(void)
 {
 	//Create a new Image (or we could create a global one if we want to keep the previous frame)
-	Image framebuffer(160, 120); //do not change framebuffer size
+	Image framebuffer(my_world->inicio.w_framework, my_world->inicio.h_framework); //do not change framebuffer size
 	 
 	//add your code here to fill the framebuffer
 	//...
 	
 
 	//some new useful functions
-
-	my_world->font = font;
-	my_world->sprite = sprite;
-	my_world->minifont = minifont;
 	
-	current_stage->render(framebuffer, my_world);
-		//bottonIntro(framebuffer); //Probar
-		//world.Intro(framebuffer, minifont);
+	
+	
+	
+	
+	current_stage->render(framebuffer);
+		
 		
 
 	//send image to screen
 	showFramebuffer(&framebuffer);
 }
 
-void Game::bottonIntro(Image& framebuffer)
-{
-	float squareBig_PointW = framebuffer.width / 2 - 13; 
-	float squareBig_PointH = framebuffer.height / 2 + framebuffer.height / 3 - 3;
-	float squareBig_W = 29;
-	float squareBig_H = 11;
-	
-	framebuffer.drawRectangle(squareBig_PointW, squareBig_PointH , squareBig_W, squareBig_H, (255, 80, 100));
-	framebuffer.drawRectangle(squareBig_PointW + 1 , squareBig_PointH + 1, squareBig_W -2, squareBig_H -2, bgcolor.RED);
-	
-	//Recla de tres
 
-	Vector2 v2 = Input::mouse_position; 
-	int window_width, window_height;
-	SDL_GetWindowSize(window, &window_width, &window_height);
-	std::cout << window_width <<" "<< window_height << "\n";
-	if (v2.x> squareBig_PointW )
-	{
-		framebuffer.drawRectangle(squareBig_PointW + 1, squareBig_PointH + 1, squareBig_W - 2, squareBig_H - 2, bgcolor.YELLOW);
-	}
-	
-	framebuffer.drawText("Inicio", framebuffer.width / 2 - 10, framebuffer.height / 2 + framebuffer.height / 3, my_world->minifont, 4, 6);
-	
-}
 
 void Game::update(double seconds_elapsed)
 {
 	//Add here your update method
-	//...
+	
+	current_stage->update(seconds_elapsed);
+	
+	////Read the keyboard state, to see all the keycodes: https://wiki.libsdl.org/SDL_Keycode
+	//if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
+	//{
+	//}
+	//if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
+	//{
+	//}
 
-	//Read the keyboard state, to see all the keycodes: https://wiki.libsdl.org/SDL_Keycode
-	if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
-	{
-	}
-	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
-	{
-	}
+	////example of 'was pressed'
+	//if (Input::wasKeyPressed(SDL_SCANCODE_A)) //if key A was pressed
+	//{
+	//	current_stage = play_stage; 
+	//	synth.stopAll(); 
+	//}
+	//if (Input::wasKeyPressed(SDL_SCANCODE_R)) //if key Z was pressed state= intro
+	//{
+	//	current_stage = intro_stage;
+	//}
 
-	//example of 'was pressed'
-	if (Input::wasKeyPressed(SDL_SCANCODE_A)) //if key A was pressed
-	{
-		current_stage = play_stage; 
-		synth.stopAll(); 
-	}
-	if (Input::wasKeyPressed(SDL_SCANCODE_Z)) //if key Z was pressed
-	{
-	}
+	////to read the gamepad state
+	//if (Input::gamepads[0].isButtonPressed(A_BUTTON)) //if the A button is pressed
+	//{
+	//}
 
-	//to read the gamepad state
-	if (Input::gamepads[0].isButtonPressed(A_BUTTON)) //if the A button is pressed
-	{
-	}
-
-	if (Input::gamepads[0].direction & PAD_UP) //left stick pointing up
-	{
-		bgcolor.set(0, 255, 0);
-	}
+	//if (Input::gamepads[0].direction & PAD_UP) //left stick pointing up
+	//{
+	//	//bgcolor.set(0, 255, 0);
+	//}
 }
 
 //Keyboard event handler (sync input)

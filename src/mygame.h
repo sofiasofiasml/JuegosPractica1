@@ -6,9 +6,7 @@
 #include "includes.h"
 #include "image.h"
 #include "utils.h"
-#include "synth.h"
-#include "includes.h"
-#include "image.h"
+#include "game.h"
 
 
 enum eCellType : uint8 {
@@ -59,24 +57,53 @@ public:
 	Image font;
 	Image minifont;
 	Image sprite;
+	
+	
+	
+	//point to rectangle 
+	struct button {
+		int w_framework = 160;
+		int h_framework = 120;
+		float FsquareBig_PointW = w_framework / 2 - 13;
+		float FsquareBig_PointH = h_framework / 2 + h_framework / 3 - 3;
+		float FsquareBig_W = 29;
+		float FsquareBig_H = 11;
+
+		float WsquareIni_PointW ;
+		float WsquareIni_PointH ;
+		float WsquareFin_W ;
+		float WsquareFin_H ;
+
+	};
+
+	struct sPlayer {
+		Vector2 pos;
+		float player_velocity = 50;
+		Image Implayer;
+	};
+	sPlayer player1;
+	sPlayer player2;
+
+	button inicio; 
 };
 class Stage {
 
 public:
 	//Synth synth;
-	virtual void render(Image& framebuffer, World* my_world) {}; //empty body
-	virtual void update() {}; //empty body
+	virtual void render(Image& framebuffer) {}; //empty body
+	virtual void update(double seconds_elapsed) {}; //empty body
 }; 
 
 class IntroStage : public Stage {
 public:
-	virtual void render(Image& framebuffer, World* my_world);
-	//virtual void update();
+	virtual void render(Image& framebuffer);
+	void bottonIntro(Image& framebuffer);
+	virtual void update(double seconds_elapsed);
 }; 
 class PlayStage : public Stage {
 public:
-	//virtual void render(Image& framebuffer, World* my_world);
-	//virtual void update();
+	virtual void render(Image& framebuffer);
+	virtual void update(double seconds_elapsed);
 };
 
 
