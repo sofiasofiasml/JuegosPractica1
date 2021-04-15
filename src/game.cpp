@@ -7,16 +7,17 @@
 #include <cmath>
 
 Game* Game::instance = NULL;
-
 Image font;
 Image minifont;
 Image sprite;
+
 Color bgcolor(130, 80, 100);
 
 Stage* intro_stage;
 Stage* play_stage;
 Stage* current_stage;
-
+//instance world
+World* my_world;
 
 Game::Game(int window_width, int window_height, SDL_Window* window)
 {
@@ -35,13 +36,18 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	play_stage = new PlayStage();
 	current_stage = intro_stage;
 
-	font.loadTGA("data/bitmap-font-black.tga"); //load bitmap-font image
-	minifont.loadTGA("data/mini-font-black-4x6.tga"); //load bitmap-font image
-	sprite.loadTGA("data/background2.tga"); //example to load an sprite
+	
 
 	enableAudio(); //enable this line if you plan to add audio to your application
 	
 	//synth.osc1.amplitude = 0.5;
+	//Instance World
+	my_world = new World();
+	font.loadTGA("data/bitmap-font-black.tga"); //load bitmap-font image
+	minifont.loadTGA("data/mini-font-black-4x6.tga"); //load bitmap-font image
+	sprite.loadTGA("data/background2.tga"); //example to load an sprite
+
+
 	
 }
 
@@ -57,9 +63,11 @@ void Game::render(void)
 
 	//some new useful functions
 
-		
+	my_world->font = font;
+	my_world->sprite = sprite;
+	my_world->minifont = minifont;
 	
-	current_stage->render(framebuffer, minifont, sprite, font);
+	current_stage->render(framebuffer, my_world);
 		//bottonIntro(framebuffer); //Probar
 		//world.Intro(framebuffer, minifont);
 		
@@ -89,7 +97,7 @@ void Game::bottonIntro(Image& framebuffer)
 		framebuffer.drawRectangle(squareBig_PointW + 1, squareBig_PointH + 1, squareBig_W - 2, squareBig_H - 2, bgcolor.YELLOW);
 	}
 	
-	framebuffer.drawText("Inicio", framebuffer.width / 2 - 10, framebuffer.height / 2 + framebuffer.height / 3, minifont, 4, 6);
+	framebuffer.drawText("Inicio", framebuffer.width / 2 - 10, framebuffer.height / 2 + framebuffer.height / 3, my_world->minifont, 4, 6);
 	
 }
 
