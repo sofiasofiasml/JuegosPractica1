@@ -7,14 +7,8 @@
 #include <cmath>
 
 Game* Game::instance = NULL;
-//Image sprite;
-
 
 //Color bgcolor(130, 80, 100);
-
-
-//instance world
-
 
 Game::Game(int window_width, int window_height, SDL_Window* window)
 {
@@ -30,23 +24,22 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	elapsed_time = 0.0f;
 	intro_stage = new IntroStage();
 	play_stage = new PlayStage();
-
+	//Instance World
+	my_world = new World();
 	current_stage = intro_stage;
 
-	
+
 
 	enableAudio(); //enable this line if you plan to add audio to your application
 	
-	//synth.osc1.amplitude = 0.5;
-	//Instance World
-	my_world = new World();
-
 	my_world->font.loadTGA("data/bitmap-font-black.tga"); //load bitmap-font image
 	my_world->minifont.loadTGA("data/mini-font-black-4x6.tga"); //load bitmap-font image
 	my_world->sprite.loadTGA("data/background2.tga"); //example to load an sprite
 	my_world->player1.Implayer.loadTGA("data/spritesheet.tga"); //example to load an sprite
 	my_world->player2.Implayer.loadTGA("data/spritesheet.tga"); //example to load an sprite
 
+	my_world->tileset.loadTGA("data/tileset.tga");
+	my_world->map = my_world->map->loadGameMap("data/mymap.map");
 }
 
 //what to do when the image has to be draw
@@ -56,18 +49,11 @@ void Game::render(void)
 	Image framebuffer(my_world->inicio.w_framework, my_world->inicio.h_framework); //do not change framebuffer size
 	 
 	//add your code here to fill the framebuffer
-	//...
 	
-
 	//some new useful functions
-	
-	
-	
-	
-	
+		
 	current_stage->render(framebuffer);
-		
-		
+	
 
 	//send image to screen
 	showFramebuffer(&framebuffer);

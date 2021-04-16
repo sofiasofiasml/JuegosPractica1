@@ -50,7 +50,17 @@ public:
 	{
 		return data[x + y * width];
 	}
+	GameMap* loadGameMap(const char* filename); 
 };
+
+struct sMapHeader {
+	int w; //width of map
+	int h; //height of map
+	unsigned char bytes; //num bytes per cell
+	unsigned char extra[7]; //filling bytes, not used
+};
+//example of parser of .map from rogued editor
+
 
 class World {
 public:
@@ -58,6 +68,8 @@ public:
 	Image minifont;
 	Image sprite;
 	
+	Image tileset;
+	GameMap* map;
 	
 	
 	//point to rectangle 
@@ -75,11 +87,20 @@ public:
 		float WsquareFin_H ;
 
 	};
-
-	struct sPlayer {
+	enum DIRECTION
+	{
+		DOWN, 
+		RIGHT, 
+		LEFT,
+		UP
+	}; 
+	struct sPlayer 
+	{
 		Vector2 pos;
 		float player_velocity = 50;
 		Image Implayer;
+		DIRECTION dir; 
+
 	};
 	sPlayer player1;
 	sPlayer player2;

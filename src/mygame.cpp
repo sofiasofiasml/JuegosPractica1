@@ -96,6 +96,34 @@ void IntroStage::update(double seconds_elapsed)
 void PlayStage::render(Image& framebuffer)
 {
 	Game* game = Game::instance;
+	framebuffer.fill(Color::CYAN);								//fills the image with one color
+	int cs = game->my_world->tileset.width / 16;
+
+	//for every cell
+	for (int x = 0; x < game->my_world->map->width; ++x)
+		for (int y = 0; y < game->my_world->map->height; ++y)
+		{
+			//get cell info
+			sCell& cell = game->my_world->map->getCell(x, y);
+			if (cell.type == 0) //skip empty
+				continue;
+			int type = (int)cell.type;
+			//compute tile pos in tileset image
+			int tilex = (type % 16) * cs; 	//x pos in tileset
+			int tiley = floor(type / 16) * cs;	//y pos in tileset
+			Area area(tilex, tiley, cs, cs); //tile area
+			int screenx = x * cs; //place offset here if you want
+			int screeny = y * cs;
+			//avoid rendering out of screen stuff
+			if (screenx < -cs || screenx > framebuffer.width ||
+				screeny < -cs || screeny > framebuffer.height)
+				continue;
+
+			//draw region of tileset inside framebuffer
+			framebuffer.drawImage(game->my_world->tileset, screenx, screeny, area); //image //pos in screen	//area
+		}
+
+
 	framebuffer.drawImage(game->my_world->player1.Implayer, game->my_world->player1.pos.x, game->my_world->player1.pos.y, Area(0, 0, 14, 18));
 	framebuffer.drawImage(game->my_world->player2.Implayer, game->my_world->player2.pos.x, game->my_world->player2.pos.y+10, Area(0, 0, 14, 18));
 
@@ -123,3 +151,33 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 		game->current_stage = game->intro_stage;
 	}
 };
+
+
+GameMap* GameMap::loadGameMap(const char* filename)
+{
+	FILE* file = fopen(filename, "rb");
+	if (file == NULL) //file not found
+		return NULL;
+	else
+		std::cout << " + File loaded: " << filename <<"\n"; 
+
+	sMapHeader header; //read header and store it in the struct
+	fread(&header, sizeof(sMapHeader), 1, file);
+	assert(header.bytes == 1); //always control bad cases!!
+
+
+	//allocate memory for the cells data and read it
+	unsigned char* cells = new unsigned char[header.w * header.h];
+	fread(cells, header.bytes, header.w * header.h, file);
+	fclose(file); //always close open files
+	//create the map where we will store it
+	GameMap* map = new GameMap(header.w, header.h);
+
+	for (int x = 0; x < map->width; x++)
+		for (int y = 0; y < map->height; y++)
+			map->getCell(x, y).type = (eCellType)cells[x + y * map->width];
+
+	delete[] cells; //always free any memory allocated!
+
+	return map;
+}

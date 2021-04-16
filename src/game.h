@@ -38,6 +38,7 @@ public:
 	Stage* play_stage;
 	Stage* current_stage;
 	World* my_world;
+
 	//ctor
 	Game( int window_width, int window_height, SDL_Window* window );
 
