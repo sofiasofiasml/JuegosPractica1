@@ -7,8 +7,9 @@
 #include "image.h"
 #include "utils.h"
 #include "game.h"
+#include <string>
 
-
+using namespace std; 
 enum eCellType : uint8 {
 	EMPTY, START,
 	WALL,
@@ -60,52 +61,55 @@ struct sMapHeader {
 	unsigned char extra[7]; //filling bytes, not used
 };
 //example of parser of .map from rogued editor
+	//point to rectangle 
+struct button {
+	int w_framework = 160;
+	int h_framework = 120;
+	float FsquareBig_PointW = w_framework / 2 - 13;
+	float FsquareBig_PointH = h_framework / 2 + h_framework / 3 - 3;
+	float FsquareBig_W = 29;
+	float FsquareBig_H = 11;
 
+	float WsquareIni_PointW;
+	float WsquareIni_PointH;
+	float WsquareFin_W;
+	float WsquareFin_H;
+
+};
+enum DIRECTION
+{
+	DOWN,
+	RIGHT,
+	LEFT,
+	UP
+};
+struct sPlayer
+{
+	Vector2 pos = Vector2(14.5, 94.5);
+	float player_velocity = 50;
+	Image Implayer;
+	DIRECTION dir;
+	bool moving;
+	int animLenght = 4;
+	float animation_velocity = 10.0f;
+	float jump = 0.0f;
+	int pixelToJump = 3;
+
+};
 
 class World {
 public:
 	Image font;
 	Image minifont;
 	Image sprite;
-	Image LoreGame;
+	//Image LoreGame;
+	Image objects; 
 	
 	Image tileset;
 	GameMap* map;
+	vector<string> movPlayer1;
 	
-	
-	//point to rectangle 
-	struct button {
-		int w_framework = 160;
-		int h_framework = 120;
-		float FsquareBig_PointW = w_framework / 2 - 13;
-		float FsquareBig_PointH = h_framework / 2 + h_framework / 3 - 3;
-		float FsquareBig_W = 29;
-		float FsquareBig_H = 11;
 
-		float WsquareIni_PointW ;
-		float WsquareIni_PointH ;
-		float WsquareFin_W ;
-		float WsquareFin_H ;
-
-	};
-	enum DIRECTION
-	{
-		DOWN, 
-		RIGHT, 
-		LEFT,
-		UP
-	}; 
-	struct sPlayer 
-	{
-		Vector2 pos =Vector2(14.5,94.5);
-		float player_velocity = 50;
-		Image Implayer;
-		DIRECTION dir; 
-		bool moving; 
-		int animLenght = 4; 
-		float animation_velocity = 10.0f; 
-
-	};
 	sPlayer player1;
 	sPlayer player2;
 
