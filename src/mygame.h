@@ -67,6 +67,7 @@ public:
 	Image font;
 	Image minifont;
 	Image sprite;
+	Image LoreGame;
 	
 	Image tileset;
 	GameMap* map;
@@ -96,10 +97,13 @@ public:
 	}; 
 	struct sPlayer 
 	{
-		Vector2 pos;
+		Vector2 pos =Vector2(14.5,94.5);
 		float player_velocity = 50;
 		Image Implayer;
 		DIRECTION dir; 
+		bool moving; 
+		int animLenght = 4; 
+		float animation_velocity = 10.0f; 
 
 	};
 	sPlayer player1;

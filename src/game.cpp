@@ -37,6 +37,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	my_world->sprite.loadTGA("data/background2.tga"); //example to load an sprite
 	my_world->player1.Implayer.loadTGA("data/spritesheet.tga"); //example to load an sprite
 	my_world->player2.Implayer.loadTGA("data/spritesheet.tga"); //example to load an sprite
+	my_world->LoreGame.loadTGA("data/LoreJuego.tga"); //example to load an sprite
 
 	my_world->tileset.loadTGA("data/tileset.tga");
 	my_world->map = my_world->map->loadGameMap("data/mymap.map");

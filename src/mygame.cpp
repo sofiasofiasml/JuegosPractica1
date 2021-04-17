@@ -43,7 +43,7 @@ void IntroStage::bottonIntro(Image& framebuffer)
 	framebuffer.drawRectangle(game->my_world->inicio.FsquareBig_PointW + 1, game->my_world->inicio.FsquareBig_PointH + 1, game->my_world->inicio.FsquareBig_W - 2, game->my_world->inicio.FsquareBig_H - 2, Color (86, 130, 91));
 
 	Vector2 v2_mouse = Input::mouse_position;
-
+	
 	// Change button color if mouse position is button
 	if (v2_mouse.x > game->my_world->inicio.WsquareIni_PointW && v2_mouse.y > game->my_world->inicio.WsquareIni_PointH && v2_mouse.x < game->my_world->inicio.WsquareFin_W && v2_mouse.y < game->my_world->inicio.WsquareFin_H)
 	{
@@ -95,6 +95,7 @@ void IntroStage::update(double seconds_elapsed)
 
 void PlayStage::render(Image& framebuffer)
 {
+	Vector2 moviment = Vector2(16, -8);
 	Game* game = Game::instance;
 	framebuffer.fill(Color::CYAN);								//fills the image with one color
 	int cs = game->my_world->tileset.width / 16;
@@ -112,8 +113,8 @@ void PlayStage::render(Image& framebuffer)
 			int tilex = (type % 16) * cs; 	//x pos in tileset
 			int tiley = floor(type / 16) * cs;	//y pos in tileset
 			Area area(tilex, tiley, cs, cs); //tile area
-			int screenx = x * cs; //place offset here if you want
-			int screeny = y * cs;
+			int screenx = x * cs + moviment.x; //place offset here if you want
+			int screeny = y * cs + moviment.y;
 			//avoid rendering out of screen stuff
 			if (screenx < -cs || screenx > framebuffer.width ||
 				screeny < -cs || screeny > framebuffer.height)
@@ -123,28 +124,39 @@ void PlayStage::render(Image& framebuffer)
 			framebuffer.drawImage(game->my_world->tileset, screenx, screeny, area); //image //pos in screen	//area
 		}
 
-
-	framebuffer.drawImage(game->my_world->player1.Implayer, game->my_world->player1.pos.x, game->my_world->player1.pos.y, Area(0, 0, 14, 18));
-	framebuffer.drawImage(game->my_world->player2.Implayer, game->my_world->player2.pos.x, game->my_world->player2.pos.y+10, Area(0, 0, 14, 18));
+	/*Vector2 v2_mouse = Input::mouse_position;*/
+	int currentAnimP1 = game->my_world->player1.moving ? (int(game->time * game->my_world->player1.animation_velocity) % game->my_world->player1.animLenght) : 0;
+	framebuffer.drawImage(game->my_world->player1.Implayer, game->my_world->player1.pos.x, game->my_world->player1.pos.y, Area(14 * currentAnimP1, 18 * (int)game->my_world->player1.dir, 14, 18));
+	//std::cout << game->my_world->player1.pos.x << " " << game->my_world->player1.pos.y << "\n";
+	framebuffer.drawImage(game->my_world->player2.Implayer, game->my_world->player2.pos.x+10, game->my_world->player2.pos.y, Area(0, 0, 14, 18));
 
 }
 void PlayStage::update(double seconds_elapsed) { //movement of the character
 	Game* game = Game::instance;
+	game->my_world->player1.moving = false;
 	if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
 	{
 		game->my_world->player1.pos.y -= game->my_world->player1.player_velocity * seconds_elapsed;
+		game->my_world->player1.dir = game->my_world->DIRECTION::UP; 
+		game->my_world->player1.moving = true; 
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
 	{
 		game->my_world->player1.pos.y += game->my_world->player1.player_velocity * seconds_elapsed;
+		game->my_world->player1.dir = game->my_world->DIRECTION::DOWN;
+		game->my_world->player1.moving = true;
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
 	{
 		game->my_world->player1.pos.x += game->my_world->player1.player_velocity * seconds_elapsed;
+		game->my_world->player1.dir = game->my_world->DIRECTION::RIGHT;
+		game->my_world->player1.moving = true;
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) //if key left
 	{
 		game->my_world->player1.pos.x -= game->my_world->player1.player_velocity * seconds_elapsed;
+		game->my_world->player1.dir = game->my_world->DIRECTION::LEFT;
+		game->my_world->player1.moving = true;
 	}
 	if (Input::wasKeyPressed(SDL_SCANCODE_R)) //if key Z was pressed state= intro
 	{
