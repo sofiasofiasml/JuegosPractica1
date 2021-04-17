@@ -6,14 +6,18 @@
 
 #include <cmath>
 
+Game* Insgame; 
+World* InsWorld; 
+sButton* Insbutton; 
+sPlayer* Insplayer1;
+sPlayer* Insplayer2;
+
 void IntroStage::render(Image& framebuffer) {
 
-	Game* Insgame = Game::instance; //singelton	
-	World* InsWorld = Game::instance->my_world;
+	Insgame = Game::instance; //singelton	
+	InsWorld = Game::instance->my_world;
 
 	framebuffer.fill(Color::CYAN);								//fills the image with one color
-	//framebuffer.drawLine( 0, 0, 100,100, Color::RED );		//draws a line
-	//framebuffer.drawImage( sprite, 0, 0 );					//draws full image
 	framebuffer.drawImage(InsWorld->sprite, 0, 0, framebuffer.width, framebuffer.height);			//draws a scaled image
 	
 	framebuffer.drawText("4 DIMENSION", framebuffer.width / 4, framebuffer.height / 5, InsWorld->font);
@@ -32,9 +36,9 @@ void IntroStage::render(Image& framebuffer) {
 void IntroStage::bottonIntro(Image& framebuffer)
 {
 	//coordenate framework to window 
-	Game* Insgame = Game::instance; //singelton
-	World* InsWorld = Game::instance->my_world;
-	button* Insbutton = &Game::instance->my_world->inicio;
+	Insgame = Game::instance; //singelton
+	InsWorld = Game::instance->my_world;
+	Insbutton = &Game::instance->my_world->inicio;
 	
 	Insbutton->WsquareIni_PointW = (Insbutton->FsquareBig_PointW * Insgame->window_width) / framebuffer.width;
 	Insbutton->WsquareIni_PointH = (Insbutton->FsquareBig_PointH * Insgame->window_height) / framebuffer.height;
@@ -64,11 +68,11 @@ void IntroStage::bottonIntro(Image& framebuffer)
 void IntroStage::update(double seconds_elapsed)
 {
 	//singelton
-	Game* Insgame = Game::instance;
+	Insgame = Game::instance;
 	/*World* InsWorld = Game::instance->my_world;
 	sPlayer* Insplayer1 = &Game::instance->my_world->player1;
 	sPlayer* Insplayer2 = &Game::instance->my_world->player2;*/
-	button* Insbutton = &Game::instance->my_world->inicio;
+	Insbutton = &Game::instance->my_world->inicio;
 
 	//Read the keyboard state, to see all the keycodes: https://wiki.libsdl.org/SDL_Keycode
 	if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
@@ -109,10 +113,10 @@ void IntroStage::update(double seconds_elapsed)
 void PlayStage::render(Image& framebuffer)
 {
 	//singelton
-	Game* Insgame = Game::instance;
-	World* InsWorld = Game::instance->my_world;
-	sPlayer* Insplayer1 = &Game::instance->my_world->player1;
-	sPlayer* Insplayer2 = &Game::instance->my_world->player2;
+	Insgame = Game::instance;
+	InsWorld = Game::instance->my_world;
+	Insplayer1 = &Game::instance->my_world->player1;
+	Insplayer2 = &Game::instance->my_world->player2;
 	
 	Vector2 moviment = Vector2(16, -8);
 	int cs = InsWorld->tileset.width / 16;
@@ -156,37 +160,37 @@ void PlayStage::render(Image& framebuffer)
 }
 void PlayStage::update(double seconds_elapsed) { //movement of the character
 	//singelton
-	Game* Insgame = Game::instance;
-	World* InsWorld = Game::instance->my_world; 
-	sPlayer* Insplayer1 = &Game::instance->my_world->player1;
-	sPlayer* Insplayer2 = &Game::instance->my_world->player2;
+	Insgame = Game::instance;
+	InsWorld = Game::instance->my_world; 
+	Insplayer1 = &Game::instance->my_world->player1;
+	Insplayer2 = &Game::instance->my_world->player2;
 
 	Insplayer1->moving = false;
 
 	if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
 	{
 		Insplayer1->pos.y -= Insplayer1->player_velocity * seconds_elapsed;
-		Insplayer1->dir = DIRECTION::UP;
+		Insplayer1->dir = eDIRECTION::UP;
 		Insplayer1->moving = true;
 		//list 
-		InsWorld->movPlayer1.push_back("UP");		
+		//InsWorld->movPlayer1.push_back("UP");		
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
 	{
 		Insplayer1->pos.y += Insplayer1->player_velocity * seconds_elapsed;
-		Insplayer1->dir = DIRECTION::DOWN;
+		Insplayer1->dir = eDIRECTION::DOWN;
 		Insplayer1->moving = true;
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
 	{
 		Insplayer1->pos.x += Insplayer1->player_velocity * seconds_elapsed;
-		Insplayer1->dir = DIRECTION::RIGHT;
+		Insplayer1->dir = eDIRECTION::RIGHT;
 		Insplayer1->moving = true;
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) //if key left
 	{
 		Insplayer1->pos.x -= Insplayer1->player_velocity * seconds_elapsed;
-		Insplayer1->dir = DIRECTION::LEFT;
+		Insplayer1->dir = eDIRECTION::LEFT;
 		Insplayer1->moving = true;
 	}
 	//JUMP 

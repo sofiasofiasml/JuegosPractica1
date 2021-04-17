@@ -62,7 +62,7 @@ struct sMapHeader {
 };
 //example of parser of .map from rogued editor
 	//point to rectangle 
-struct button {
+struct sButton {
 	int w_framework = 160;
 	int h_framework = 120;
 	float FsquareBig_PointW = w_framework / 2 - 13;
@@ -76,7 +76,7 @@ struct button {
 	float WsquareFin_H;
 
 };
-enum DIRECTION
+enum eDIRECTION : uint8
 {
 	DOWN,
 	RIGHT,
@@ -88,7 +88,7 @@ struct sPlayer
 	Vector2 pos = Vector2(14.5, 94.5);
 	float player_velocity = 50;
 	Image Implayer;
-	DIRECTION dir;
+	eDIRECTION dir;
 	bool moving;
 	int animLenght = 4;
 	float animation_velocity = 10.0f;
@@ -113,12 +113,11 @@ public:
 	sPlayer player1;
 	sPlayer player2;
 
-	button inicio; 
+	sButton inicio;
 };
 class Stage {
 
 public:
-	//Synth synth;
 	virtual void render(Image& framebuffer) {}; //empty body
 	virtual void update(double seconds_elapsed) {}; //empty body
 }; 
