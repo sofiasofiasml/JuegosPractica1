@@ -35,8 +35,8 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	my_world->font.loadTGA("data/bitmap-font-black.tga"); //load bitmap-font image
 	my_world->minifont.loadTGA("data/mini-font-black-4x6.tga"); //load bitmap-font image
 	my_world->sprite.loadTGA("data/background2.tga"); //example to load an sprite
-	my_world->player1.Implayer.loadTGA("data/spritesheet.tga"); //example to load an sprite
-	my_world->player2.Implayer.loadTGA("data/spritesheet.tga"); //example to load an sprite
+	my_world->player[0].Implayer.loadTGA("data/spritesheet.tga"); //example to load an sprite
+	my_world->player[1].Implayer.loadTGA("data/spritesheet.tga"); //example to load an sprite
 	//my_world->LoreGame.loadTGA("data/LoreJuego.tga"); //example to load an sprite
 
 	my_world->objects.loadTGA("data/objects.tga"); 
@@ -54,7 +54,7 @@ void Game::render(void)
 	//add your code here to fill the framebuffer
 	
 	//some new useful functions
-		
+	
 	current_stage->render(framebuffer);
 	
 

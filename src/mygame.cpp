@@ -6,16 +6,12 @@
 
 #include <cmath>
 
-Game* Insgame; 
-World* InsWorld; 
-sButton* Insbutton; 
-sPlayer* Insplayer1;
-sPlayer* Insplayer2;
+
 
 void IntroStage::render(Image& framebuffer) {
 
-	Insgame = Game::instance; //singelton	
-	InsWorld = Game::instance->my_world;
+	Game* Insgame = Game::instance; //singelton	
+	World* InsWorld= Game::instance->my_world;
 
 	framebuffer.fill(Color::CYAN);								//fills the image with one color
 	framebuffer.drawImage(InsWorld->sprite, 0, 0, framebuffer.width, framebuffer.height);			//draws a scaled image
@@ -33,12 +29,13 @@ void IntroStage::render(Image& framebuffer) {
 	bottonIntro(framebuffer);
 }
 
+
 void IntroStage::bottonIntro(Image& framebuffer)
 {
 	//coordenate framework to window 
-	Insgame = Game::instance; //singelton
-	InsWorld = Game::instance->my_world;
-	Insbutton = &Game::instance->my_world->inicio;
+	Game* Insgame = Game::instance; //singelton
+	World* InsWorld = Game::instance->my_world;
+	sButton* Insbutton = &Game::instance->my_world->inicio;
 	
 	Insbutton->WsquareIni_PointW = (Insbutton->FsquareBig_PointW * Insgame->window_width) / framebuffer.width;
 	Insbutton->WsquareIni_PointH = (Insbutton->FsquareBig_PointH * Insgame->window_height) / framebuffer.height;
@@ -68,11 +65,11 @@ void IntroStage::bottonIntro(Image& framebuffer)
 void IntroStage::update(double seconds_elapsed)
 {
 	//singelton
-	Insgame = Game::instance;
+	Game* Insgame = Game::instance;
 	/*World* InsWorld = Game::instance->my_world;
 	sPlayer* Insplayer1 = &Game::instance->my_world->player1;
 	sPlayer* Insplayer2 = &Game::instance->my_world->player2;*/
-	Insbutton = &Game::instance->my_world->inicio;
+	sButton* Insbutton = &Game::instance->my_world->inicio;
 
 	//Read the keyboard state, to see all the keycodes: https://wiki.libsdl.org/SDL_Keycode
 	if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
@@ -90,10 +87,12 @@ void IntroStage::update(double seconds_elapsed)
 	//}
 
 	
-	if (Input::mouse_state==1 &&(Input::mouse_position.x > Insbutton->WsquareIni_PointW && //
-		Input::mouse_position.y > Insbutton->WsquareIni_PointH && Input::mouse_position.x < Insbutton->WsquareFin_W //
+	if (Input::mouse_state==1 &&(Input::mouse_position.x > Insbutton->WsquareIni_PointW && 
+		Input::mouse_position.y > Insbutton->WsquareIni_PointH && Input::mouse_position.x < Insbutton->WsquareFin_W 
 		&& Input::mouse_position.y < Insbutton->WsquareFin_H))
 	{
+		Insgame->my_world->player[0].pos = Vector2(14.5, 94.5); //CMABIAR HACER RESET
+		//World(); 
 		Insgame->current_stage = Insgame->play_stage;
 		Insgame->synth.stopAll();
 	}
@@ -113,10 +112,10 @@ void IntroStage::update(double seconds_elapsed)
 void PlayStage::render(Image& framebuffer)
 {
 	//singelton
-	Insgame = Game::instance;
-	InsWorld = Game::instance->my_world;
-	Insplayer1 = &Game::instance->my_world->player1;
-	Insplayer2 = &Game::instance->my_world->player2;
+	Game* Insgame = Game::instance;
+	World* InsWorld = Game::instance->my_world;
+	sPlayer* Insplayer1 = &Game::instance->my_world->player[0];
+	sPlayer* Insplayer2 = &Game::instance->my_world->player[1];
 	
 	Vector2 moviment = Vector2(16, -8);
 	int cs = InsWorld->tileset.width / 16;
@@ -154,16 +153,19 @@ void PlayStage::render(Image& framebuffer)
 		std::cout << game->my_world->movPlayer1[i]<< "\n";*/
 	framebuffer.drawImage(Insplayer2->Implayer, Insplayer2->pos.x+10, Insplayer2->pos.y, Area(0, 0, 14, 18));
 	//escalera
-	//framebuffer.drawImage(game->my_world->objects, 10, 10, Area(0, 0, 11, 72));
+	framebuffer.drawImage(InsWorld->objects, 10, 10, Area(0, 0, 11, 72));
 	//rocas
 	//framebuffer.drawImage(game->my_world->objects, 10, 10, Area(12, 0, 8, 15));
 }
+
+
+
 void PlayStage::update(double seconds_elapsed) { //movement of the character
 	//singelton
-	Insgame = Game::instance;
-	InsWorld = Game::instance->my_world; 
-	Insplayer1 = &Game::instance->my_world->player1;
-	Insplayer2 = &Game::instance->my_world->player2;
+	Game* Insgame = Game::instance;
+	World* InsWorld = Game::instance->my_world;
+	sPlayer* Insplayer1 = &Game::instance->my_world->player[0];
+	sPlayer* Insplayer2 = &Game::instance->my_world->player[1];
 
 	Insplayer1->moving = false;
 
@@ -210,7 +212,9 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	}
 	if (Input::wasKeyPressed(SDL_SCANCODE_R)) //if key Z was pressed state= intro
 	{
+		
 		Insgame->current_stage = Insgame->intro_stage;
+		
 		//game->my_world->movPlayer1.clear();
 	}
 };
@@ -243,4 +247,16 @@ GameMap* GameMap::loadGameMap(const char* filename)
 	delete[] cells; //always free any memory allocated!
 
 	return map;
+}
+
+sPlayer::sPlayer()
+{
+	this->pos = Vector2(14.5, 94.5);
+}
+
+World::World()
+{
+
+	for (int i = 0; i < 2; i++)
+		player[i].pos = Vector2(14.5, 94.5);
 }

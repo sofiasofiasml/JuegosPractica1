@@ -85,7 +85,7 @@ enum eDIRECTION : uint8
 };
 struct sPlayer
 {
-	Vector2 pos = Vector2(14.5, 94.5);
+	Vector2 pos;
 	float player_velocity = 50;
 	Image Implayer;
 	eDIRECTION dir;
@@ -94,6 +94,8 @@ struct sPlayer
 	float animation_velocity = 10.0f;
 	float jump = 0.0f;
 	int pixelToJump = 3;
+public: 
+	sPlayer(); 
 
 };
 
@@ -110,10 +112,10 @@ public:
 	vector<string> movPlayer1;
 	
 
-	sPlayer player1;
-	sPlayer player2;
-
+	sPlayer player[2];
 	sButton inicio;
+
+	World(); 
 };
 class Stage {
 
