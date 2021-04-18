@@ -10,6 +10,9 @@
 #include <string>
 
 using namespace std; 
+#define N_PLAYER    2
+#define N_NIVEL     2
+
 enum eCellType : uint8 {
 	EMPTY, START,
 	WALL,
@@ -107,14 +110,17 @@ public:
 	Image sprite;
 	//Image LoreGame;
 	Image objects; 
-	Image playerReal; 
+	Image playerReal;
+	Image playerAlpha;
 	
+	//map
 	Image tileset;
-	GameMap* map;
+	GameMap* map[N_NIVEL];
+	int level;
+	//List moviments
 	vector<string> movPlayer1;
-	//Image imagePer;
-	
-	sPlayer player[2];
+
+	sPlayer player[N_PLAYER];
 	sButton inicio;
 
 	World(); 

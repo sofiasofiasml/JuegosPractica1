@@ -24,17 +24,19 @@ sPlayer::sPlayer()
 World::World()
 {
 	playerReal.loadTGA("data/spritesheet.tga");
+	playerAlpha.loadTGA("data/spritesheetAlpha.tga");
 	font.loadTGA("data/bitmap-font-black.tga"); //load bitmap-font image
 	minifont.loadTGA("data/mini-font-black-4x6.tga"); //load bitmap-font image
 	sprite.loadTGA("data/background2.tga"); //example to load an sprite
 	objects.loadTGA("data/objects.tga");
 	tileset.loadTGA("data/tileset.tga");
-	map = map->loadGameMap("data/mymap.map");
- //example to load an sprite
-	//my_world->player[1].Implayer = my_world->playerReal; //example to load an sprite
-	for (int i = 0; i < 2; i++) {
+	map[0] = map[0]->loadGameMap("data/mymapL1.map");
+	map[1] = map[1]->loadGameMap("data/mymapL2.map");
+	level = 0; 
+
+	for (int i = 0; i < N_PLAYER; i++) {
 		this->player[i] = sPlayer();
-		this->player[i].Implayer = playerReal; //example to load an sprite
+		this->player[i].Implayer = playerReal; 
 	}
 }
 
@@ -119,13 +121,13 @@ void IntroStage::update(double seconds_elapsed)
 	//	Game::instance->synth.stopAll();
 	//}
 
-	
+	//press button inicio
 	if (Input::mouse_state==1 &&(Input::mouse_position.x > Insbutton->WsquareIni_PointW && 
 		Input::mouse_position.y > Insbutton->WsquareIni_PointH && Input::mouse_position.x < Insbutton->WsquareFin_W 
 		&& Input::mouse_position.y < Insbutton->WsquareFin_H))
 	{
 		//reset players
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < N_PLAYER; i++)
 		{
 			//Image provImage = Game::instance->my_world->player[i].Implayer; //save image  
 			Game::instance->my_world->player[i] = sPlayer(); //incialitze image
@@ -156,17 +158,18 @@ void PlayStage::render(Image& framebuffer)
 	World* InsWorld = Game::instance->my_world;
 	sPlayer* Insplayer1 = &Game::instance->my_world->player[0];
 	sPlayer* Insplayer2 = &Game::instance->my_world->player[1];
+	GameMap* Insmap = Game::instance->my_world->map[InsWorld->level];
 	
 	Vector2 moviment = Vector2(16, -8);
 	int cs = InsWorld->tileset.width / 16;
 	framebuffer.fill(Color::CYAN);								//fills the image with one color
 
 	//for every cell
-	for (int x = 0; x < InsWorld->map->width; ++x)
-		for (int y = 0; y < InsWorld->map->height; ++y)
+	for (int x = 0; x < Insmap->width; ++x)
+		for (int y = 0; y < Insmap->height; ++y)
 		{
 			//get cell info
-			sCell& cell = InsWorld->map->getCell(x, y);
+			sCell& cell = Insmap->getCell(x, y);
 			if (cell.type == 0) //skip empty
 				continue;
 			int type = (int)cell.type;
@@ -184,6 +187,12 @@ void PlayStage::render(Image& framebuffer)
 			//draw region of tileset inside framebuffer
 			framebuffer.drawImage(InsWorld->tileset, screenx, screeny, area); //image //pos in screen	//area
 		}
+	//render objects
+	//framebuffer.drawImage(InsWorld->objects, 30, 40, Area(0, 0, 11, 72));
+	//rocas
+	//framebuffer.drawImage(InsWorld->objects, 30, 30, Area(12, 0, 8, 15));
+
+	//Render Players
 
 	/*Vector2 v2_mouse = Input::mouse_position;*/
 	int currentAnimP1 = Insplayer1->moving ? (int(Insgame->time * Insplayer1->animation_velocity) % Insplayer1->animLenght) : 0;
@@ -193,9 +202,7 @@ void PlayStage::render(Image& framebuffer)
 		std::cout << game->my_world->movPlayer1[i]<< "\n";*/
 	framebuffer.drawImage(Insplayer2->Implayer, Insplayer2->pos.x+10, Insplayer2->pos.y, Area(0, 0, 14, 18));
 	//escalera
-	framebuffer.drawImage(InsWorld->objects, 10, 10, Area(0, 0, 11, 72));
-	//rocas
-	//framebuffer.drawImage(game->my_world->objects, 10, 10, Area(12, 0, 8, 15));
+
 }
 
 
