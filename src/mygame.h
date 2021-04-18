@@ -85,17 +85,18 @@ enum eDIRECTION : uint8
 };
 struct sPlayer
 {
+public: 
 	Vector2 pos;
-	float player_velocity = 50;
+	float player_velocity;
 	Image Implayer;
 	eDIRECTION dir;
 	bool moving;
-	int animLenght = 4;
-	float animation_velocity = 10.0f;
-	float jump = 0.0f;
-	int pixelToJump = 3;
-public: 
-	sPlayer(); 
+	int animLenght;
+	float animation_velocity;
+	float jump;
+	int pixelToJump;
+
+	sPlayer();
 
 };
 
@@ -106,12 +107,13 @@ public:
 	Image sprite;
 	//Image LoreGame;
 	Image objects; 
+	Image playerReal; 
 	
 	Image tileset;
 	GameMap* map;
 	vector<string> movPlayer1;
+	//Image imagePer;
 	
-
 	sPlayer player[2];
 	sButton inicio;
 

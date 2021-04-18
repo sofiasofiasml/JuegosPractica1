@@ -28,21 +28,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	my_world = new World();
 	current_stage = intro_stage;
 
-
-
 	enableAudio(); //enable this line if you plan to add audio to your application
-	
-	my_world->font.loadTGA("data/bitmap-font-black.tga"); //load bitmap-font image
-	my_world->minifont.loadTGA("data/mini-font-black-4x6.tga"); //load bitmap-font image
-	my_world->sprite.loadTGA("data/background2.tga"); //example to load an sprite
-	my_world->player[0].Implayer.loadTGA("data/spritesheet.tga"); //example to load an sprite
-	my_world->player[1].Implayer.loadTGA("data/spritesheet.tga"); //example to load an sprite
-	//my_world->LoreGame.loadTGA("data/LoreJuego.tga"); //example to load an sprite
-
-	my_world->objects.loadTGA("data/objects.tga"); 
-
-	my_world->tileset.loadTGA("data/tileset.tga");
-	my_world->map = my_world->map->loadGameMap("data/mymap.map");
 }
 
 //what to do when the image has to be draw
@@ -70,34 +56,6 @@ void Game::update(double seconds_elapsed)
 	
 	current_stage->update(seconds_elapsed);
 	
-	////Read the keyboard state, to see all the keycodes: https://wiki.libsdl.org/SDL_Keycode
-	//if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
-	//{
-	//}
-	//if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
-	//{
-	//}
-
-	////example of 'was pressed'
-	//if (Input::wasKeyPressed(SDL_SCANCODE_A)) //if key A was pressed
-	//{
-	//	current_stage = play_stage; 
-	//	synth.stopAll(); 
-	//}
-	//if (Input::wasKeyPressed(SDL_SCANCODE_R)) //if key Z was pressed state= intro
-	//{
-	//	current_stage = intro_stage;
-	//}
-
-	////to read the gamepad state
-	//if (Input::gamepads[0].isButtonPressed(A_BUTTON)) //if the A button is pressed
-	//{
-	//}
-
-	//if (Input::gamepads[0].direction & PAD_UP) //left stick pointing up
-	//{
-	//	//bgcolor.set(0, 255, 0);
-	//}
 }
 
 //Keyboard event handler (sync input)
@@ -125,10 +83,7 @@ void Game::onGamepadButtonUp(SDL_JoyButtonEvent event)
 
 void Game::onMouseMove(SDL_MouseMotionEvent event)
 {
-	/*if (event.x > 20)
-	{
-		std::cout << "Entra"  << "\n";
-	}*/
+
 }
 
 void Game::onMouseButtonDown( SDL_MouseButtonEvent event )

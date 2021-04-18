@@ -6,8 +6,40 @@
 
 #include <cmath>
 
+//constructor
 
+sPlayer::sPlayer()
+{
+	this->dir = eDIRECTION::RIGHT; 
+	this->pos = Vector2(14.5, 94.5);
+	this->player_velocity = 50;
+	this->animLenght = 4;
+	this->animation_velocity = 10.0f;
+	this->jump = 0.0f;
+	this->pixelToJump = 3;
+	this->moving = false;
 
+}
+
+World::World()
+{
+	playerReal.loadTGA("data/spritesheet.tga");
+	font.loadTGA("data/bitmap-font-black.tga"); //load bitmap-font image
+	minifont.loadTGA("data/mini-font-black-4x6.tga"); //load bitmap-font image
+	sprite.loadTGA("data/background2.tga"); //example to load an sprite
+	objects.loadTGA("data/objects.tga");
+	tileset.loadTGA("data/tileset.tga");
+	map = map->loadGameMap("data/mymap.map");
+ //example to load an sprite
+	//my_world->player[1].Implayer = my_world->playerReal; //example to load an sprite
+	for (int i = 0; i < 2; i++) {
+		this->player[i] = sPlayer();
+		this->player[i].Implayer = playerReal; //example to load an sprite
+	}
+}
+
+//function
+//Intro
 void IntroStage::render(Image& framebuffer) {
 
 	Game* Insgame = Game::instance; //singelton	
@@ -66,8 +98,9 @@ void IntroStage::update(double seconds_elapsed)
 {
 	//singelton
 	Game* Insgame = Game::instance;
-	/*World* InsWorld = Game::instance->my_world;
-	sPlayer* Insplayer1 = &Game::instance->my_world->player1;
+	sPlayer* Insplayer1 = &Game::instance->my_world->player[0];
+	World* InsWorld = Game::instance->my_world;
+	/*
 	sPlayer* Insplayer2 = &Game::instance->my_world->player2;*/
 	sButton* Insbutton = &Game::instance->my_world->inicio;
 
@@ -91,8 +124,14 @@ void IntroStage::update(double seconds_elapsed)
 		Input::mouse_position.y > Insbutton->WsquareIni_PointH && Input::mouse_position.x < Insbutton->WsquareFin_W 
 		&& Input::mouse_position.y < Insbutton->WsquareFin_H))
 	{
-		Insgame->my_world->player[0].pos = Vector2(14.5, 94.5); //CMABIAR HACER RESET
-		//World(); 
+		//reset players
+		for (int i = 0; i < 2; i++)
+		{
+			//Image provImage = Game::instance->my_world->player[i].Implayer; //save image  
+			Game::instance->my_world->player[i] = sPlayer(); //incialitze image
+			Game::instance->my_world->player[i].Implayer = InsWorld->playerReal; //copy image original
+		}
+
 		Insgame->current_stage = Insgame->play_stage;
 		Insgame->synth.stopAll();
 	}
@@ -109,6 +148,7 @@ void IntroStage::update(double seconds_elapsed)
 
 }
 
+//PLayer
 void PlayStage::render(Image& framebuffer)
 {
 	//singelton
@@ -212,14 +252,16 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	}
 	if (Input::wasKeyPressed(SDL_SCANCODE_R)) //if key Z was pressed state= intro
 	{
-		
+		//Insplayer1->pos = Vector2(14.5, 94.5);
+		//Game::instance->my_world->player[0].pos = Vector2(14.5, 94.5);
+				
 		Insgame->current_stage = Insgame->intro_stage;
 		
 		//game->my_world->movPlayer1.clear();
 	}
 };
 
-
+//Gamemap
 GameMap* GameMap::loadGameMap(const char* filename)
 {
 	FILE* file = fopen(filename, "rb");
@@ -249,14 +291,4 @@ GameMap* GameMap::loadGameMap(const char* filename)
 	return map;
 }
 
-sPlayer::sPlayer()
-{
-	this->pos = Vector2(14.5, 94.5);
-}
 
-World::World()
-{
-
-	for (int i = 0; i < 2; i++)
-		player[i].pos = Vector2(14.5, 94.5);
-}
