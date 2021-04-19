@@ -197,9 +197,9 @@ void PlayStage::render(Image& framebuffer)
 	/*Vector2 v2_mouse = Input::mouse_position;*/
 	int currentAnimP1 = Insplayer1->moving ? (int(Insgame->time * Insplayer1->animation_velocity) % Insplayer1->animLenght) : 0;
 	framebuffer.drawImage(Insplayer1->Implayer, Insplayer1->pos.x, Insplayer1->pos.y, Area(14 * currentAnimP1, 18 * (int)Insplayer1->dir, 14, 18));
-	/*std::cout <<"INICIAR" << "\n";
-	for (int i = 0; i < game->my_world->movPlayer1.size(); i++)
-		std::cout << game->my_world->movPlayer1[i]<< "\n";*/
+	//std::cout <<"INICIAR" << "\n";
+	//for (int i = 0; i < InsWorld->movPlayer1.size(); i++)
+	//	std::cout << InsWorld->movPlayer1[i].x << " "<<InsWorld->movPlayer1[i].y<< "\n";
 	framebuffer.drawImage(Insplayer2->Implayer, Insplayer2->pos.x+10, Insplayer2->pos.y, Area(0, 0, 14, 18));
 	//escalera
 
@@ -215,14 +215,16 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	sPlayer* Insplayer2 = &Game::instance->my_world->player[1];
 
 	Insplayer1->moving = false;
+	//list 
+	//InsWorld->movPlayer1.push_back(Insplayer1->pos);
+
+	
 
 	if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
 	{
 		Insplayer1->pos.y -= Insplayer1->player_velocity * seconds_elapsed;
 		Insplayer1->dir = eDIRECTION::UP;
 		Insplayer1->moving = true;
-		//list 
-		//InsWorld->movPlayer1.push_back("UP");		
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
 	{

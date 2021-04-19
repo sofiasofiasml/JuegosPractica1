@@ -7,7 +7,7 @@
 #include "image.h"
 #include "utils.h"
 #include "game.h"
-#include <string>
+//#include <string>
 
 using namespace std; 
 #define N_PLAYER    2
@@ -112,13 +112,13 @@ public:
 	Image objects; 
 	Image playerReal;
 	Image playerAlpha;
-	
+
 	//map
 	Image tileset;
 	GameMap* map[N_NIVEL];
 	int level;
-	//List moviments
-	vector<string> movPlayer1;
+	//List moviments player1
+	vector<Vector2> movPlayer1;
 
 	sPlayer player[N_PLAYER];
 	sButton inicio;
