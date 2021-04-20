@@ -33,6 +33,7 @@ sPlayer::sPlayer(Image playerIm)
 	this->moving = false;
 	this->Implayer = playerIm;
 }
+
 World::World()
 {
 	playerReal.loadTGA("data/spritesheet.tga");
@@ -45,6 +46,8 @@ World::World()
 	map[0] = map[0]->loadGameMap("data/mymapL1.map");
 	map[1] = map[1]->loadGameMap("data/mymapL2.map");
 	level = 0; 
+	timeGameing = 0.0f; 
+	contMov = 0; 
 
 	for (int i = 0; i < N_PLAYER; i++) {
 		this->player[i] = sPlayer(playerReal);
@@ -65,7 +68,8 @@ void IntroStage::render(Image& framebuffer) {
 	framebuffer.drawText("4 DIMENSION", framebuffer.width / 4, framebuffer.height / 5, InsWorld->font);
 	//draws some text using a bitmap font in an image (assuming every char is 7x9)
 	//framebuffer.drawText(toString(Game::instance->time), 1, 10, my_world->minifont, 4, 6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
-	
+	//framebuffer.drawText(toString(Insgame->time), 1, 10, InsWorld->minifont, 4, 6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
+
     //void drawText( std::string text, int x, int y, const Image& bitmapfont, int font_w = 7, int font_h = 9, int first_char = 32);
 
 
@@ -145,6 +149,7 @@ void IntroStage::update(double seconds_elapsed)
 		}
 
 		Insgame->current_stage = Insgame->play_stage;
+		InsWorld->timeGameing = Insgame->time; 
 		Insgame->synth.stopAll();
 	}
 
@@ -166,9 +171,12 @@ void PlayStage::render(Image& framebuffer)
 	//singelton
 	Game* Insgame = Game::instance;
 	World* InsWorld = Game::instance->my_world;
-	sPlayer* Insplayer1 = &Game::instance->my_world->player[0];
-	sPlayer* Insplayer2 = &Game::instance->my_world->player[1];
+	sPlayer* Insplayer1; 
+	
+
+	//sPlayer* Insplayer2 = &Game::instance->my_world->player[1];
 	GameMap* Insmap = Game::instance->my_world->map[InsWorld->level];
+	
 	
 	Vector2 moviment = Vector2(16, -8);
 	int cs = InsWorld->tileset.width / 16;
@@ -205,13 +213,34 @@ void PlayStage::render(Image& framebuffer)
 	//Render Players
 
 	/*Vector2 v2_mouse = Input::mouse_position;*/
+	if (Insgame->time - InsWorld->timeGameing < 10.0f)
+	{
+		Insplayer1 = &Game::instance->my_world->player[0];
+	}
+	if (Insgame->time - InsWorld->timeGameing >= 10.0f && Insgame->time - InsWorld->timeGameing < 18.0f)
+	{
+		Insplayer1 = &Game::instance->my_world->player[1];
+		//PLotear player1 con los movimientos hechos anteriormente
+		if (InsWorld->contMov < InsWorld->movPlayer1.size())
+		{
+			framebuffer.drawImage(InsWorld->playerAlpha, InsWorld->movPlayer1[InsWorld->contMov].x, InsWorld->movPlayer1[InsWorld->contMov].y, Area(0, 0, 14, 18));
+		}
+		InsWorld->contMov += 1; 
+	}
+	if (Insgame->time - InsWorld->timeGameing >= 18.0f)
+	{
+		InsWorld->timeGameing = Insgame->time;
+		Insplayer1 = &Game::instance->my_world->player[0];
+
+	}
 	int currentAnimP1 = Insplayer1->moving ? (int(Insgame->time * Insplayer1->animation_velocity) % Insplayer1->animLenght) : 0;
 	framebuffer.drawImage(Insplayer1->Implayer, Insplayer1->pos.x, Insplayer1->pos.y, Area(14 * currentAnimP1, 18 * (int)Insplayer1->dir, 14, 18));
 	//std::cout <<"INICIAR" << "\n";
 	//for (int i = 0; i < InsWorld->movPlayer1.size(); i++)
 	//	std::cout << InsWorld->movPlayer1[i].x << " "<<InsWorld->movPlayer1[i].y<< "\n";
-	framebuffer.drawImage(Insplayer2->Implayer, Insplayer2->pos.x+10, Insplayer2->pos.y, Area(0, 0, 14, 18));
 	//escalera
+	framebuffer.drawText(toString((int)(Insgame->time - InsWorld->timeGameing)), 1, 10, InsWorld->minifont, 4, 6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
+
 
 }
 
@@ -221,12 +250,27 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	//singelton
 	Game* Insgame = Game::instance;
 	World* InsWorld = Game::instance->my_world;
-	sPlayer* Insplayer1 = &Game::instance->my_world->player[0];
-	sPlayer* Insplayer2 = &Game::instance->my_world->player[1];
-
+	/*sPlayer* Insplayer1 = &Game::instance->my_world->player[0];
+	sPlayer* Insplayer2 = &Game::instance->my_world->player[1];*/
+	sPlayer* Insplayer1;
+	if (Insgame->time - InsWorld->timeGameing < 10.0f)
+	{
+		Insplayer1 = &Game::instance->my_world->player[0];
+		InsWorld->movPlayer1.push_back(Insplayer1->pos);
+	}
+	if (Insgame->time - InsWorld->timeGameing >= 10.0f && Insgame->time - InsWorld->timeGameing < 18.0f)
+	{
+		Insplayer1 = &Game::instance->my_world->player[1];
+	}
+	if (Insgame->time - InsWorld->timeGameing >= 18.0f)
+	{
+		InsWorld->timeGameing = Insgame->time;
+		Insplayer1 = &Game::instance->my_world->player[0];
+		InsWorld->movPlayer1.clear(); 
+		InsWorld->contMov = 0;
+	}
 	Insplayer1->moving = false;
 	//list 
-	//InsWorld->movPlayer1.push_back(Insplayer1->pos);
 
 	
 

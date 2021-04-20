@@ -117,6 +117,8 @@ public:
 	Image tileset;
 	GameMap* map[N_NIVEL];
 	int level;
+	float timeGameing; 
+	int contMov; 
 	//List moviments player1
 	vector<Vector2> movPlayer1;
 
@@ -142,6 +144,7 @@ class PlayStage : public Stage {
 public:
 	virtual void render(Image& framebuffer);
 	virtual void update(double seconds_elapsed);
+
 };
 
 
