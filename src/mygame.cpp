@@ -18,9 +18,21 @@ sPlayer::sPlayer()
 	this->jump = 0.0f;
 	this->pixelToJump = 3;
 	this->moving = false;
-
+	this->Implayer = Image(); 
 }
 
+sPlayer::sPlayer(Image playerIm)
+{
+	this->dir = eDIRECTION::RIGHT;
+	this->pos = Vector2(14.5, 94.5);
+	this->player_velocity = 50;
+	this->animLenght = 4;
+	this->animation_velocity = 10.0f;
+	this->jump = 0.0f;
+	this->pixelToJump = 3;
+	this->moving = false;
+	this->Implayer = playerIm;
+}
 World::World()
 {
 	playerReal.loadTGA("data/spritesheet.tga");
@@ -35,10 +47,10 @@ World::World()
 	level = 0; 
 
 	for (int i = 0; i < N_PLAYER; i++) {
-		this->player[i] = sPlayer();
-		this->player[i].Implayer = playerReal; 
+		this->player[i] = sPlayer(playerReal);
 	}
 }
+
 
 //function
 //Intro
@@ -129,9 +141,7 @@ void IntroStage::update(double seconds_elapsed)
 		//reset players
 		for (int i = 0; i < N_PLAYER; i++)
 		{
-			//Image provImage = Game::instance->my_world->player[i].Implayer; //save image  
-			Game::instance->my_world->player[i] = sPlayer(); //incialitze image
-			Game::instance->my_world->player[i].Implayer = InsWorld->playerReal; //copy image original
+			Game::instance->my_world->player[i] = sPlayer(InsWorld->playerReal); //incialitze player
 		}
 
 		Insgame->current_stage = Insgame->play_stage;

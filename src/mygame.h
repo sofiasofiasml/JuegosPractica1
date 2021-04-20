@@ -100,7 +100,7 @@ public:
 	int pixelToJump;
 
 	sPlayer();
-
+	sPlayer(Image playerIm); 
 };
 
 class World {
