@@ -12,6 +12,7 @@
 using namespace std; 
 #define N_PLAYER    2
 #define N_NIVEL     2
+#define TIME_GAME_PLAYER     10.0f
 
 enum eCellType : uint8 {
 	EMPTY, START,
@@ -102,6 +103,7 @@ public:
 
 	sPlayer();
 	sPlayer(Image& playerIm); 
+	bool isValid(Vector2 positionPlayer); 
 };
 
 class World {
@@ -146,9 +148,13 @@ public:
 	virtual void render(Image& framebuffer);
 	virtual void update(double seconds_elapsed);
 	void MovPlayerAlpha(sPlayer* InsplayerAlpha);
-
 };
 
+class GameOver : public Stage {
+public:
+	virtual void render(Image& framebuffer);
+	virtual void update(double seconds_elapsed);
+};
 
 
 #endif

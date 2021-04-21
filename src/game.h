@@ -36,6 +36,7 @@ public:
 	//
 	Stage* intro_stage;
 	Stage* play_stage;
+	Stage* game_over;
 	Stage* current_stage;
 	World* my_world;
 

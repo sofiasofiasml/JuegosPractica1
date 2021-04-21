@@ -24,6 +24,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	elapsed_time = 0.0f;
 	intro_stage = new IntroStage();
 	play_stage = new PlayStage();
+	game_over = new GameOver();
 	//Instance World
 	my_world = new World();
 	current_stage = intro_stage;
