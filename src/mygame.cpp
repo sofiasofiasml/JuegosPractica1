@@ -21,7 +21,7 @@ sPlayer::sPlayer()
 	this->Implayer = Image(); 
 }
 
-sPlayer::sPlayer(Image playerIm)
+sPlayer::sPlayer(Image& playerIm)
 {
 	this->dir = eDIRECTION::RIGHT;
 	this->pos = Vector2(14.5, 94.5);
@@ -171,7 +171,8 @@ void PlayStage::render(Image& framebuffer)
 	//singelton
 	Game* Insgame = Game::instance;
 	World* InsWorld = Game::instance->my_world;
-	sPlayer* Insplayer1; 
+	sPlayer* Insplayer1;
+	sPlayer* InsplayerAlpha;
 	
 
 	//sPlayer* Insplayer2 = &Game::instance->my_world->player[1];
@@ -217,17 +218,22 @@ void PlayStage::render(Image& framebuffer)
 	{
 		Insplayer1 = &Game::instance->my_world->player[0];
 	}
-	if (Insgame->time - InsWorld->timeGameing >= 10.0f && Insgame->time - InsWorld->timeGameing < 18.0f)
+	if (Insgame->time - InsWorld->timeGameing >= 10.0f && Insgame->time - InsWorld->timeGameing < 20.0f)
 	{
 		Insplayer1 = &Game::instance->my_world->player[1];
+		InsplayerAlpha = &Game::instance->my_world->player[0];
 		//PLotear player1 con los movimientos hechos anteriormente
-		if (InsWorld->contMov < InsWorld->movPlayer1.size())
+		if (InsWorld->contMov < InsWorld->movPlayer1.size()-1)
 		{
-			framebuffer.drawImage(InsWorld->playerAlpha, InsWorld->movPlayer1[InsWorld->contMov].x, InsWorld->movPlayer1[InsWorld->contMov].y, Area(0, 0, 14, 18));
+			//InsWorld->movPlayer1[0] = Vector2(20, 94.5f); 
+			MovPlayerAlpha(InsplayerAlpha);
+			int currentAnimAlpha = InsplayerAlpha->moving ? (int(Insgame->time * InsplayerAlpha->animation_velocity) % InsplayerAlpha->animLenght) : 0;
+			framebuffer.drawImage(InsWorld->playerAlpha, InsWorld->movPlayer1[InsWorld->contMov].x, InsWorld->movPlayer1[InsWorld->contMov].y, 
+				Area(14 * currentAnimAlpha, 18 * (int)InsplayerAlpha->dir, 14, 18));
 		}
 		InsWorld->contMov += 1; 
 	}
-	if (Insgame->time - InsWorld->timeGameing >= 18.0f)
+	if (Insgame->time - InsWorld->timeGameing >= 20.0f)
 	{
 		InsWorld->timeGameing = Insgame->time;
 		Insplayer1 = &Game::instance->my_world->player[0];
@@ -244,7 +250,23 @@ void PlayStage::render(Image& framebuffer)
 
 }
 
-
+void PlayStage::MovPlayerAlpha(sPlayer* InsplayerAlpha)
+{
+	World* InsWorld = Game::instance->my_world;
+	float x = InsWorld->movPlayer1[InsWorld->contMov+1].x - InsWorld->movPlayer1[InsWorld->contMov].x; 
+	float y = InsWorld->movPlayer1[InsWorld->contMov+1].y - InsWorld->movPlayer1[InsWorld->contMov].y; 
+	InsplayerAlpha->moving = true;
+	if (x > 0.0f)
+		InsplayerAlpha->dir = RIGHT; 
+	if (y > 0.0f)
+		InsplayerAlpha->dir = DOWN;
+	if (x < 0.0f)
+		InsplayerAlpha->dir = LEFT;
+	if (y < 0.0f)
+		InsplayerAlpha->dir = UP;
+	if (x==0.0f && y==0.0f)
+		InsplayerAlpha->moving = false; 
+};
 
 void PlayStage::update(double seconds_elapsed) { //movement of the character
 	//singelton
@@ -258,11 +280,11 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 		Insplayer1 = &Game::instance->my_world->player[0];
 		InsWorld->movPlayer1.push_back(Insplayer1->pos);
 	}
-	if (Insgame->time - InsWorld->timeGameing >= 10.0f && Insgame->time - InsWorld->timeGameing < 18.0f)
+	if (Insgame->time - InsWorld->timeGameing >= 10.0f && Insgame->time - InsWorld->timeGameing < 20.0f)
 	{
 		Insplayer1 = &Game::instance->my_world->player[1];
 	}
-	if (Insgame->time - InsWorld->timeGameing >= 18.0f)
+	if (Insgame->time - InsWorld->timeGameing >= 20.0f)
 	{
 		InsWorld->timeGameing = Insgame->time;
 		Insplayer1 = &Game::instance->my_world->player[0];
@@ -322,7 +344,8 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 		
 		//game->my_world->movPlayer1.clear();
 	}
-};
+}
+
 
 //Gamemap
 GameMap* GameMap::loadGameMap(const char* filename)
@@ -345,9 +368,14 @@ GameMap* GameMap::loadGameMap(const char* filename)
 	//create the map where we will store it
 	GameMap* map = new GameMap(header.w, header.h);
 
-	for (int x = 0; x < map->width; x++)
-		for (int y = 0; y < map->height; y++)
+	for (int x = 0; x < map->width; x++) {
+		for (int y = 0; y < map->height; y++) {
 			map->getCell(x, y).type = (eCellType)cells[x + y * map->width];
+
+			//if (map->getCell(x, y).type == FLOOR)
+			//	std::cout << "HOLA" << "\n";
+		}
+	}
 
 	delete[] cells; //always free any memory allocated!
 

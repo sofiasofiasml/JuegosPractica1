@@ -17,7 +17,8 @@ enum eCellType : uint8 {
 	EMPTY, START,
 	WALL,
 	DOOR,
-	CHEST
+	CHEST, 
+	FLOOR = 64, 
 };
 
 enum eItemType : uint8 {
@@ -100,7 +101,7 @@ public:
 	int pixelToJump;
 
 	sPlayer();
-	sPlayer(Image playerIm); 
+	sPlayer(Image& playerIm); 
 };
 
 class World {
@@ -144,6 +145,7 @@ class PlayStage : public Stage {
 public:
 	virtual void render(Image& framebuffer);
 	virtual void update(double seconds_elapsed);
+	void MovPlayerAlpha(sPlayer* InsplayerAlpha);
 
 };
 
