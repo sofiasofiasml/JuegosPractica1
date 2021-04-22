@@ -11,7 +11,7 @@
 sPlayer::sPlayer()
 {
 	this->dir = eDIRECTION::RIGHT; 
-	this->pos = Vector2(14.5, 94.5);
+	this->pos = Vector2(14.5, 93);
 	this->player_velocity = 50;
 	this->animLenght = 4;
 	this->animation_velocity = 10.0f;
@@ -24,7 +24,7 @@ sPlayer::sPlayer()
 sPlayer::sPlayer(Image& playerIm)
 {
 	this->dir = eDIRECTION::RIGHT;
-	this->pos = Vector2(14.5, 94.5);
+	this->pos = Vector2(14.5, 93);
 	this->player_velocity = 50;
 	this->animLenght = 4;
 	this->animation_velocity = 10.0f;
@@ -49,6 +49,9 @@ World::World()
 	timeGameing = 0.0f; 
 	contMov = 0; 
 
+	ROCK = objects.getArea(40, 0, 20, 25); //creates an image given an area
+	ROCK.scale(50, 50); 
+
 	for (int i = 0; i < N_PLAYER; i++) {
 		this->player[i] = sPlayer(playerReal);
 	}
@@ -62,17 +65,10 @@ void IntroStage::render(Image& framebuffer) {
 	Game* Insgame = Game::instance; //singelton	
 	World* InsWorld= Game::instance->my_world;
 
-	framebuffer.fill(Color::CYAN);								//fills the image with one color
+	framebuffer.fill(Color::CYAN);	//fills the image with one color
 	framebuffer.drawImage(InsWorld->sprite, 0, 0, framebuffer.width, framebuffer.height);			//draws a scaled image
 	
 	framebuffer.drawText("4 DIMENSION", framebuffer.width / 4, framebuffer.height / 5, InsWorld->font);
-	//draws some text using a bitmap font in an image (assuming every char is 7x9)
-	//framebuffer.drawText(toString(Game::instance->time), 1, 10, my_world->minifont, 4, 6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
-	//framebuffer.drawText(toString(Insgame->time), 1, 10, InsWorld->minifont, 4, 6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
-
-    //void drawText( std::string text, int x, int y, const Image& bitmapfont, int font_w = 7, int font_h = 9, int first_char = 32);
-
-
 	//audio intro
 	Insgame->synth.playSample("data/lassambience1.wav", 2, true);
 
@@ -174,46 +170,14 @@ void PlayStage::render(Image& framebuffer)
 	sPlayer* Insplayer1;
 	sPlayer* InsplayerAlpha;
 	
-
-	//sPlayer* Insplayer2 = &Game::instance->my_world->player[1];
-	GameMap* Insmap = Game::instance->my_world->map[InsWorld->level];
-	
-	
-	Vector2 moviment = Vector2(16, -8);
-	int cs = InsWorld->tileset.width / 16;
 	framebuffer.fill(Color::CYAN);								//fills the image with one color
-
-	//for every cell
-	for (int x = 0; x < Insmap->width; ++x)
-		for (int y = 0; y < Insmap->height; ++y)
-		{
-			//get cell info
-			sCell& cell = Insmap->getCell(x, y);
-			if (cell.type == 0) //skip empty
-				continue;
-			int type = (int)cell.type;
-			//compute tile pos in tileset image
-			int tilex = (type % 16) * cs; 	//x pos in tileset
-			int tiley = floor(type / 16) * cs;	//y pos in tileset
-			Area area(tilex, tiley, cs, cs); //tile area
-			int screenx = x * cs+ moviment.x; //place offset here if you want
-			int screeny = y * cs + moviment.y;
-			//avoid rendering out of screen stuff
-			if (screenx < -cs || screenx > framebuffer.width ||
-				screeny < -cs || screeny > framebuffer.height)
-				continue;
-
-			//draw region of tileset inside framebuffer
-			framebuffer.drawImage(InsWorld->tileset, screenx, screeny, area); //image //pos in screen	//area
-		}
+	// render cells
+	renderCells(framebuffer); 
+	
 	//render objects
-	//framebuffer.drawImage(InsWorld->objects, 30, 40, Area(0, 0, 11, 72));
-	//rocas
-	//framebuffer.drawImage(InsWorld->objects, 30, 30, Area(12, 0, 8, 15));
+	AppearObjects(framebuffer);
 
 	//Render Players
-
-	/*Vector2 v2_mouse = Input::mouse_position;*/
 	if (Insgame->time - InsWorld->timeGameing < TIME_GAME_PLAYER)
 	{
 		Insplayer1 = &Game::instance->my_world->player[0];
@@ -233,21 +197,91 @@ void PlayStage::render(Image& framebuffer)
 		}
 		InsWorld->contMov += 1; 
 	}
-	/*if (Insgame->time - InsWorld->timeGameing >= (TIME_GAME_PLAYER*2))
-	{
-		InsWorld->timeGameing = Insgame->time;
-		Insplayer1 = &Game::instance->my_world->player[0];
-
-	}*/
+	
 	int currentAnimP1 = Insplayer1->moving ? (int(Insgame->time * Insplayer1->animation_velocity) % Insplayer1->animLenght) : 0;
 	framebuffer.drawImage(Insplayer1->Implayer, Insplayer1->pos.x, Insplayer1->pos.y, Area(14 * currentAnimP1, 18 * (int)Insplayer1->dir, 14, 18));
-	//std::cout <<"INICIAR" << "\n";
-	//for (int i = 0; i < InsWorld->movPlayer1.size(); i++)
-	//	std::cout << InsWorld->movPlayer1[i].x << " "<<InsWorld->movPlayer1[i].y<< "\n";
-	//escalera
-	framebuffer.drawText(toString((int)(Insgame->time - InsWorld->timeGameing)), 1, 10, InsWorld->minifont, 4, 6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
+	framebuffer.drawText(toString((int)(Insgame->time - InsWorld->timeGameing)), 1, 10, InsWorld->minifont, 4, 6);
 
 
+}
+
+void PlayStage::renderCells(Image& framebuffer)
+{
+	World* InsWorld = Game::instance->my_world;
+	GameMap* Insmap = Game::instance->my_world->map[InsWorld->level];
+	int cs = InsWorld->tileset.width / 16;
+	Vector2 moviment = Vector2(16, -8);
+
+	for (int x = 0; x < Insmap->width; ++x)
+		for (int y = 0; y < Insmap->height; ++y)
+		{
+			//get cell info
+			sCell& cell = Insmap->getCell(x, y);
+			if (cell.type == 0) //skip empty
+				continue;
+			int type = (int)cell.type;
+			//compute tile pos in tileset image
+			int tilex = (type % 16) * cs; 	//x pos in tileset
+			int tiley = floor(type / 16) * cs;	//y pos in tileset
+			Area area(tilex, tiley, cs, cs); //tile area
+			int screenx = (x * cs) + moviment.x; //place offset here if you want
+			int screeny = (y * cs) + moviment.y;
+			//avoid rendering out of screen stuff
+			if (screenx < -cs || screenx > framebuffer.width ||
+				screeny < -cs || screeny > framebuffer.height)
+				continue;
+
+			//draw region of tileset inside framebuffer
+			framebuffer.drawImage(InsWorld->tileset, screenx, screeny, area); //image //pos in screen	//area
+		}
+}
+
+void PlayStage::AppearObjects(Image& framebuffer)
+{
+	Game* Insgame = Game::instance;
+	World* InsWorld = Game::instance->my_world;
+	sPlayer* Insplayer1 = &Game::instance->my_world->player[0];
+	vector<Vector2> InsList = Game::instance->my_world->movPlayer1;
+	int cont = Game::instance->my_world->contMov;
+	//pies del player
+	float x = Insplayer1->pos.x + 14;
+	float y = Insplayer1->pos.y + 18;
+
+
+	if (InsWorld->level == 0) 
+	{
+		if (Insgame->time - InsWorld->timeGameing < TIME_GAME_PLAYER)
+		{
+			if (x >= 115 && x <= 135 && y >= 107 && y <= 112) {
+				framebuffer.drawImage(InsWorld->objects, 30, 40, Area(0, 0, 11, 72));
+				framebuffer.drawRectangle(115, 110, 20, 2, Color(147, 157, 148));
+				//Insgame->synth.playSample("data/bip.wav", 0.5, false);
+
+			}
+			else
+				framebuffer.drawRectangle(115, 107, 20, 5, Color(147, 157, 148));
+		}
+		if (InsList.size() != 0 && Insgame->time - InsWorld->timeGameing >= TIME_GAME_PLAYER && Insgame->time - InsWorld->timeGameing < (TIME_GAME_PLAYER * 2)){
+			// pies del playerAlpha
+			float Alphx = InsList[cont].x + 14;
+			float Alphy = InsList[cont].y + 18;
+			if (Alphx >= 115 && Alphx <= 135 && Alphy >= 107 && Alphy <= 112) {
+				framebuffer.drawImage(InsWorld->objects, 30, 40, Area(0, 0, 11, 72));
+				framebuffer.drawRectangle(115, 110, 20, 2, Color(147, 157, 148));
+				//Insgame->synth.playSample("data/bip.wav", 0.5, false);
+
+			}
+			else
+				framebuffer.drawRectangle(115, 107, 20, 5, Color(147, 157, 148));
+		}
+	}
+	//rocas
+	if (InsWorld->level == 1)
+	{
+		framebuffer.drawImage(InsWorld->ROCK, 30, 56);
+		framebuffer.drawImage(InsWorld->ROCK, 50, 56);
+		framebuffer.drawImage(InsWorld->ROCK, 70, 56);
+	}
 }
 
 //Calculate player1 direction and movement, when playing player 2
@@ -269,12 +303,11 @@ void PlayStage::MovPlayerAlpha(sPlayer* InsplayerAlpha)
 		InsplayerAlpha->moving = false; 
 };
 
+
 void PlayStage::update(double seconds_elapsed) { //movement of the character
 	//singelton
 	Game* Insgame = Game::instance;
 	World* InsWorld = Game::instance->my_world;
-	/*sPlayer* Insplayer1 = &Game::instance->my_world->player[0];
-	sPlayer* Insplayer2 = &Game::instance->my_world->player[1];*/
 	sPlayer* Insplayer1;
 	
 
@@ -293,8 +326,7 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 		Insplayer1 = &Game::instance->my_world->player[0];
 		InsWorld->movPlayer1.clear(); 
 		InsWorld->contMov = 0;
-		//IF no llega a cueva
-		//Insgame->current_stage = Insgame->game_over;
+		nextSteep(); 
 	}
 	Insplayer1->moving = false;
 		
@@ -302,82 +334,69 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
 	{
 		target.y -= Insplayer1->player_velocity * seconds_elapsed; 
-		/*if (Insplayer1->isValid(target))
-		{*/
-			//Insplayer1->pos.y -= Insplayer1->player_velocity * seconds_elapsed;
-		
 		Insplayer1->dir = eDIRECTION::UP;
-		Insplayer1->moving = true;
-		//}
-		
+		Insplayer1->moving = true;		
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
 	{
 		target.y += Insplayer1->player_velocity * seconds_elapsed;
-
-		/*if (Insplayer1->isValid(target))
-		{*/
-			//Insplayer1->pos.y += Insplayer1->player_velocity * seconds_elapsed;
-			Insplayer1->dir = eDIRECTION::DOWN;
-			Insplayer1->moving = true;
-		//}
+		Insplayer1->dir = eDIRECTION::DOWN;
+		Insplayer1->moving = true;
+		
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
 	{
 		target.x += Insplayer1->player_velocity * seconds_elapsed;
-
-		/*if (Insplayer1->isValid(target))
-		{
-			Insplayer1->pos.x += Insplayer1->player_velocity * seconds_elapsed;*/
-			Insplayer1->dir = eDIRECTION::RIGHT;
-			Insplayer1->moving = true;
-		//}
+		Insplayer1->dir = eDIRECTION::RIGHT;
+		Insplayer1->moving = true;
+		
 	}
 	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) //if key left
 	{
 		target.x -= Insplayer1->player_velocity * seconds_elapsed;
-
-		/*if (Insplayer1->isValid(target))
-		{
-			Insplayer1->pos.x -= Insplayer1->player_velocity * seconds_elapsed;*/
-			Insplayer1->dir = eDIRECTION::LEFT;
-			Insplayer1->moving = true;
-		//}
+		Insplayer1->dir = eDIRECTION::LEFT;
+		Insplayer1->moving = true;
+		
 	}
 	//JUMP 
 	// Si pasan 0.5 segundos de haber apretado el espacio para saltar
-	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE) == false && Insplayer1->jump != 0.0f && Insgame->time > Insplayer1->jump + 0.5f)
+	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE) == false && Insplayer1->jump != 0.0f && Insgame->time > Insplayer1->jump + 0.2f)
 	{
-		target.y -= Insplayer1->player_velocity * seconds_elapsed;
-
-		//if (Insplayer1->isValid(target))
-		//{
-		//	Insplayer1->pos.y += Insplayer1->pixelToJump; // Devolver en la misma posición original
-			Insplayer1->moving = true;
-			Insplayer1->jump = 0.0f;
-		//}
+		target.y += Insplayer1->pixelToJump; // Devolver en la misma posición original
+		Insplayer1->moving = true;
+		Insplayer1->jump = 0.0f;
+		
 	}
 	// Solo puede apretar 1 vez el salto si aún no ha vuelto al puesto original
 	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE) && Insplayer1->jump==0.0f)
 	{
-		Insplayer1->pos.y -= Insplayer1->pixelToJump;
+		target.y -= Insplayer1->pixelToJump;
 		Insplayer1->moving = true;
 		Insplayer1->jump = Insgame->time;
 	}
-	if (Input::wasKeyPressed(SDL_SCANCODE_R)) //if key Z was pressed state= intro
+	if (Input::wasKeyPressed(SDL_SCANCODE_O)) //if key O state: GAME OVER
 	{
-		//Insplayer1->pos = Vector2(14.5, 94.5);
-		//Game::instance->my_world->player[0].pos = Vector2(14.5, 94.5);
-				
+		Insgame->current_stage = Insgame->game_over;
+	}
+	if (Input::wasKeyPressed(SDL_SCANCODE_R)) //if key R state: intro
+	{
+		InsWorld->movPlayer1.clear();
+		InsWorld->contMov = 0;
 		Insgame->current_stage = Insgame->intro_stage;
-		
-		//game->my_world->movPlayer1.clear();
+
 	}
 
 	if (Insplayer1->isValid(target))
 		Insplayer1->pos = target; 
 }
 
+void  PlayStage::nextSteep() 
+{
+	Game* Insgame = Game::instance;
+	//IF no llega a cueva
+	Insgame->current_stage = Insgame->game_over;
+
+}
 void GameOver::render(Image& framebuffer) 
 {
 	Game* Insgame = Game::instance; //singelton	
@@ -400,7 +419,17 @@ void GameOver::render(Image& framebuffer)
 
 void GameOver::update(double seconds_elapsed)
 {
+	Game* Insgame = Game::instance;
+	World* InsWorld = Game::instance->my_world;
+	if (Input::isKeyPressed(SDL_SCANCODE_RETURN)) //if key up
+	{
+		
+		InsWorld->movPlayer1.clear();
+		InsWorld->contMov = 0;
+		Insgame->current_stage = Insgame->intro_stage;
 
+		
+	}
 }
 
 //Gamemap
@@ -438,24 +467,39 @@ GameMap* GameMap::loadGameMap(const char* filename)
 	return map;
 }
 
-bool sPlayer::isValid(Vector2 positionPlayer) 
+bool sPlayer::isValid(Vector2 positionPlayer)
 {
 	World* InsWorld = Game::instance->my_world;
-	int mapActual = 0; 
+	
 	Vector2 moviment = Vector2(16, -8);
+	int cs = InsWorld->tileset.width / 16;
+	int x[2]; 
+	int y[2]; 
 
-	int x = (positionPlayer.x * 16) / 160;
-	int y = (positionPlayer.y * 16) / 120;
-	/*int x = positionPlayer.x / 8; 
-	int y = positionPlayer.y / 8;*/
-	std::cout << x << " "<<y << "\n";
-
-	if (InsWorld->map[mapActual]->getCell(x, y).type == 93) 
+	//std::cout << x << " " << y << "\n";
+	for (int i = 0; i < 2; i++)
 	{
-		return false;
-	}
-	else
-		return true;
+		x[i] = ((positionPlayer.x +(14 *i) - moviment.x) / cs);
 
+	}
+	
+	y[0] = ((positionPlayer.y + (18 * 1) - moviment.y) / cs);
+	   
+	for (int i = 0; i < 2; i++)
+	{
+		
+		if (InsWorld->map[InsWorld->level]->getCell(x[i], y[0]).type == 64)
+			return false;
+		
+	}
+	//if (InsWorld->map[mapActual]->getCell(x, y).type == 93 || InsWorld->map[mapActual]->getCell(x, Per_h).type == 93
+	//	|| InsWorld->map[mapActual]->getCell(Per_w, y).type == 93 || InsWorld->map[mapActual]->getCell(Per_w, Per_h).type == 93 )
+	//{
+	//	return false;
+	//}
+	
+		return true;
+	//if (screenx < -cs || screenx > framebuffer.width ||
+	//	screeny < -cs || screeny > framebuffer.height)
 }
 

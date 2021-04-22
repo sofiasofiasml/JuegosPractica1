@@ -115,7 +115,7 @@ public:
 	Image objects; 
 	Image playerReal;
 	Image playerAlpha;
-
+	Image ROCK; 
 	//map
 	Image tileset;
 	GameMap* map[N_NIVEL];
@@ -148,6 +148,9 @@ public:
 	virtual void render(Image& framebuffer);
 	virtual void update(double seconds_elapsed);
 	void MovPlayerAlpha(sPlayer* InsplayerAlpha);
+	void AppearObjects(Image& framebuffer);
+	void renderCells(Image& framebuffer);
+	void nextSteep(); 
 };
 
 class GameOver : public Stage {
