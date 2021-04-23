@@ -104,7 +104,7 @@ void IntroStage::bottonIntro(Image& framebuffer)
 	}
 
 	// Text to button 
-	framebuffer.drawText("Inicio", framebuffer.width / 2 - 10, framebuffer.height / 2 + framebuffer.height / 3, InsWorld->minifont, 4, 6);
+	framebuffer.drawText("Start", framebuffer.width / 2 - 8, framebuffer.height / 2 + framebuffer.height / 3, InsWorld->minifont, 4, 6);
 
 }
 
@@ -153,16 +153,11 @@ void PlayStage::renderPlayers(Image& framebuffer)
 {
 	Game* Insgame = Game::instance;
 	World* InsWorld = Game::instance->my_world;
-	sPlayer* Insplayer1;
-	sPlayer* InsplayerAlpha;
-	if (Insgame->time - InsWorld->timeGameing < TIME_GAME_PLAYER)
-	{
-		Insplayer1 = &Game::instance->my_world->player[0];
-	}
+	sPlayer* Insplayer1 = InstancePlayer();
+	sPlayer* InsplayerAlpha = &Game::instance->my_world->player[0];
+	
 	if (Insgame->time - InsWorld->timeGameing >= TIME_GAME_PLAYER && Insgame->time - InsWorld->timeGameing < (TIME_GAME_PLAYER * 2))
 	{
-		Insplayer1 = &Game::instance->my_world->player[1];
-		InsplayerAlpha = &Game::instance->my_world->player[0];
 		// Plot player1 with the movements made previously
 		if (InsWorld->movPlayer1.size()!=0 && InsWorld->contMov < InsWorld->movPlayer1.size() - 1)
 		{
@@ -180,7 +175,21 @@ void PlayStage::renderPlayers(Image& framebuffer)
 	framebuffer.drawText(toString((int)(Insgame->time - InsWorld->timeGameing)), 1, 10, InsWorld->minifont, 4, 6);
 
 }
+sPlayer* PlayStage::InstancePlayer() 
+{
+	Game* Insgame = Game::instance;
+	World* InsWorld = Game::instance->my_world;
 
+
+	if (Insgame->time - InsWorld->timeGameing < TIME_GAME_PLAYER)
+	{
+		return &Game::instance->my_world->player[0];
+	}
+	if (Insgame->time - InsWorld->timeGameing >= TIME_GAME_PLAYER && Insgame->time - InsWorld->timeGameing < (TIME_GAME_PLAYER * 2))
+	{
+		return &Game::instance->my_world->player[1];
+	}
+}
 void PlayStage::renderCells(Image& framebuffer)
 {
 	World* InsWorld = Game::instance->my_world;
@@ -216,16 +225,17 @@ void PlayStage::AppearObjects(Image& framebuffer)
 {
 	Game* Insgame = Game::instance;
 	World* InsWorld = Game::instance->my_world;
-	sPlayer* Insplayer1 = &Game::instance->my_world->player[0];
+	sPlayer* Insplayer1 = InstancePlayer();
 	vector<Vector2> InsList = Game::instance->my_world->movPlayer1;
 	int cont = Game::instance->my_world->contMov;
+
 	//pies del player
 	float x = Insplayer1->pos.x + 14;
 	float y = Insplayer1->pos.y + 18;
 
-
-	if (InsWorld->level == 0) 
+	if (InsWorld->level == 0) //Primer nivel
 	{
+		//Primer jugador
 		if (Insgame->time - InsWorld->timeGameing < TIME_GAME_PLAYER)
 		{
 			if (x >= 115 && x <= 135 && y >= 107 && y <= 112) {
@@ -237,13 +247,14 @@ void PlayStage::AppearObjects(Image& framebuffer)
 			else
 				framebuffer.drawRectangle(115, 107, 20, 5, Color(147, 157, 148));
 		}
+		//Jugador alpha, segundo jugador 
 		if (InsList.size() != 0 && cont < InsList.size() && Insgame->time - InsWorld->timeGameing >= TIME_GAME_PLAYER && 
 			Insgame->time - InsWorld->timeGameing < (TIME_GAME_PLAYER * 2)){
-
 			// pies del playerAlpha
 			float Alphx = InsList[cont].x + 14;
 			float Alphy = InsList[cont].y + 18;
-			if (Alphx >= 115 && Alphx <= 135 && Alphy >= 107 && Alphy <= 112) {
+			if (Alphx >= 115 && Alphx <= 135 && Alphy >= 107 && Alphy <= 112 ||
+				x >= 115 && x <= 135 && y >= 107 && y <= 112) {
 				framebuffer.drawImage(InsWorld->objects, 30, 40, Area(0, 0, 11, 72));
 				framebuffer.drawRectangle(115, 110, 20, 2, Color(147, 157, 148));
 				//Insgame->synth.playSample("data/bip.wav", 0.5, false);
@@ -397,14 +408,13 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 }
 
 
-
 void  PlayStage::nextSteep() 
 {
 	Game* Insgame = Game::instance;
 	World* InsWorld = Game::instance->my_world;
 
 
-	//IF no llega a cueva
+	//If no llega a cueva
 	if (InsWorld->nextLevel == false)
 	{
 		InsWorld->movPlayer1.clear();
@@ -420,9 +430,11 @@ void PauseLevel1to2::render(Image& framebuffer)
 	Game* Insgame = Game::instance; //singelton	
 	World* InsWorld = Game::instance->my_world;
 
-	framebuffer.fill(Color::CYAN);								//fills the image with one color
+	framebuffer.fill(Color(106, 151, 111));	//fills the image with one color
 
-	framebuffer.drawText("Level 2", framebuffer.width / 4, framebuffer.height / 5, InsWorld->font);
+	framebuffer.drawText("Level 2", 55, 50, InsWorld->font);
+	if ((int)Insgame->time % 2)
+		framebuffer.drawText("Continue Press Enter", 80, 110, InsWorld->minifont, 4, 6);
 
 }
 
@@ -454,10 +466,11 @@ void GameOver::render(Image& framebuffer)
 	Game* Insgame = Game::instance; //singelton	
 	World* InsWorld = Game::instance->my_world;
 
-	framebuffer.fill(Color::CYAN);								//fills the image with one color
+	framebuffer.fill(Color(106, 151, 111));								//fills the image with one color
 
-	framebuffer.drawText("GAME OVER", framebuffer.width / 4, framebuffer.height / 5, InsWorld->font);
-
+	framebuffer.drawText("GAME OVER", 50, 50, InsWorld->font);
+	if ((int)Insgame->time % 2)
+		framebuffer.drawText("Continue Press Enter", 80, 110, InsWorld->minifont, 4, 6);
 }
 
 void GameOver::update(double seconds_elapsed)
@@ -483,9 +496,10 @@ void Win::render(Image& framebuffer)
 	Game* Insgame = Game::instance; //singelton	
 	World* InsWorld = Game::instance->my_world;
 
-	framebuffer.fill(Color::CYAN);								//fills the image with one color
-	framebuffer.drawText("You Win", framebuffer.width / 4, framebuffer.height / 5, InsWorld->font);
-
+	framebuffer.fill(Color(106, 151, 111));								//fills the image with one color
+	framebuffer.drawText("You Win", 55, 50, InsWorld->font);
+	if((int)Insgame->time % 2 )
+		framebuffer.drawText("Continue Press Enter", 80, 110, InsWorld->minifont, 4, 6);
 }
 
 void Win::update(double seconds_elapsed)

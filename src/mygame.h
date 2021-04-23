@@ -152,6 +152,7 @@ public:
 	void AppearObjects(Image& framebuffer);
 	void renderCells(Image& framebuffer);
 	void renderPlayers(Image& framebuffer);
+	sPlayer* InstancePlayer();
 	void nextSteep(); 
 };
 
