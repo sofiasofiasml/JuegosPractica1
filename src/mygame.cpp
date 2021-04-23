@@ -49,6 +49,7 @@ World::World()
 	nextLevel = false; 
 	timeGameing = 0.0f; 
 	contMov = 0; 
+	moviment = Vector2(16, -8);
 
 	ROCK = objects.getArea(40, 0, 20, 25); //creates an image given an area
 	ROCK.scale(50, 50); 
@@ -195,7 +196,7 @@ void PlayStage::renderCells(Image& framebuffer)
 	World* InsWorld = Game::instance->my_world;
 	GameMap* Insmap = Game::instance->my_world->map[InsWorld->level];
 	int cs = InsWorld->tileset.width / 16;
-	Vector2 moviment = Vector2(16, -8);
+	//Vector2 moviment = Vector2(16, -8);
 
 	for (int x = 0; x < Insmap->width; ++x)
 		for (int y = 0; y < Insmap->height; ++y)
@@ -209,8 +210,8 @@ void PlayStage::renderCells(Image& framebuffer)
 			int tilex = (type % 16) * cs; 	//x pos in tileset
 			int tiley = floor(type / 16) * cs;	//y pos in tileset
 			Area area(tilex, tiley, cs, cs); //tile area
-			int screenx = (x * cs) + moviment.x; //place offset here if you want
-			int screeny = (y * cs) + moviment.y;
+			int screenx = (x * cs) + InsWorld->moviment.x; //place offset here if you want
+			int screeny = (y * cs) + InsWorld->moviment.y;
 			//avoid rendering out of screen stuff
 			if (screenx < -cs || screenx > framebuffer.width ||
 				screeny < -cs || screeny > framebuffer.height)
@@ -298,7 +299,7 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	Game* Insgame = Game::instance;
 	World* InsWorld = Game::instance->my_world;
 	sPlayer* Insplayer1;
-	Vector2 moviment = Vector2(16, -8);
+	//Vector2 moviment = Vector2(16, -8);
 
 
 	if (Insgame->time - InsWorld->timeGameing < TIME_GAME_PLAYER)
@@ -382,14 +383,14 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 		Insplayer1->pos = target; 
 
 	int x[2];
-	int y = ((Insplayer1->pos.y + (18 * 1) - moviment.y) / 8);
+	int y = ((Insplayer1->pos.y + (18 * 1) - InsWorld->moviment.y) / 8);
 
 	for (int i = 0; i < 2; i++)
 	{
-		x[i] = ((Insplayer1->pos.x + (14 * i) - moviment.x) / 8);
+		x[i] = ((Insplayer1->pos.x + (14 * i) - InsWorld->moviment.x) / 8);
 		sCell celda = InsWorld->map[InsWorld->level]->getCell(x[i], y);
 		//Si entra a la cueva
-		if (celda.type == 163 || celda.type == 164 || celda.type == 112 || celda.type == 128 || celda.type == 96 || celda.type == 144)
+		if (celda.type >= 14 && celda.type <= 17)
 		{
 			//va al Level 2, si pasa por la cueva y esta en el level 1
 			if(InsWorld->level == 0 && InsWorld->nextLevel == true)
@@ -559,14 +560,13 @@ bool sPlayer::isValid(Vector2 positionPlayer)
 {
 	World* InsWorld = Game::instance->my_world;
 	
-	Vector2 moviment = Vector2(16, -8);
 	int cs = InsWorld->tileset.width / 16;
 	int x[2]; 
-	int y= ((positionPlayer.y + (18 * 1) - moviment.y) / cs);
+	int y= ((positionPlayer.y + (18 * 1) - InsWorld->moviment.y) / cs);
 
 	for (int i = 0; i < 2; i++)
 	{
-		x[i] = ((positionPlayer.x +(14 *i) - moviment.x) / cs);
+		x[i] = ((positionPlayer.x +(14 *i) - InsWorld->moviment.x) / cs);
 
 	}
 	
@@ -575,7 +575,7 @@ bool sPlayer::isValid(Vector2 positionPlayer)
 	   
 	for (int i = 0; i < 2; i++)
 	{
-		if (InsWorld->map[InsWorld->level]->getCell(x[i], y).type == 64)
+		if (InsWorld->map[InsWorld->level]->getCell(x[i], y).type == FLOOR)
 			return false;
 		
 	}

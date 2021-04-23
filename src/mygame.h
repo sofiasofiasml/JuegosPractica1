@@ -19,7 +19,7 @@ enum eCellType : uint8 {
 	WALL,
 	DOOR,
 	CHEST, 
-	FLOOR = 64, 
+	FLOOR = 11, 
 };
 
 enum eItemType : uint8 {
@@ -123,6 +123,8 @@ public:
 	bool nextLevel; 
 	float timeGameing; 
 	int contMov; 
+
+	Vector2 moviment;
 	//List moviments player1
 	vector<Vector2> movPlayer1;
 
