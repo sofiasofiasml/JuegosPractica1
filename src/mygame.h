@@ -120,6 +120,7 @@ public:
 	Image tileset;
 	GameMap* map[N_NIVEL];
 	int level;
+	bool nextLevel; 
 	float timeGameing; 
 	int contMov; 
 	//List moviments player1
@@ -154,6 +155,12 @@ public:
 };
 
 class GameOver : public Stage {
+public:
+	virtual void render(Image& framebuffer);
+	virtual void update(double seconds_elapsed);
+};
+
+class Win : public Stage {
 public:
 	virtual void render(Image& framebuffer);
 	virtual void update(double seconds_elapsed);

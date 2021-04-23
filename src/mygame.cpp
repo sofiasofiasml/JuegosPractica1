@@ -46,6 +46,7 @@ World::World()
 	map[0] = map[0]->loadGameMap("data/mymapL1.map");
 	map[1] = map[1]->loadGameMap("data/mymapL2.map");
 	level = 0; 
+	nextLevel = false; 
 	timeGameing = 0.0f; 
 	contMov = 0; 
 
@@ -144,9 +145,9 @@ void IntroStage::update(double seconds_elapsed)
 			Game::instance->my_world->player[i] = sPlayer(InsWorld->playerReal); //incialitze player
 		}
 
-		Insgame->current_stage = Insgame->play_stage;
 		InsWorld->timeGameing = Insgame->time; 
 		Insgame->synth.stopAll();
+		Insgame->current_stage = Insgame->play_stage;
 	}
 
 	//to read the gamepad state
@@ -261,7 +262,9 @@ void PlayStage::AppearObjects(Image& framebuffer)
 			else
 				framebuffer.drawRectangle(115, 107, 20, 5, Color(147, 157, 148));
 		}
-		if (InsList.size() != 0 && Insgame->time - InsWorld->timeGameing >= TIME_GAME_PLAYER && Insgame->time - InsWorld->timeGameing < (TIME_GAME_PLAYER * 2)){
+		if (InsList.size() != 0 && cont < InsList.size() && Insgame->time - InsWorld->timeGameing >= TIME_GAME_PLAYER && 
+			Insgame->time - InsWorld->timeGameing < (TIME_GAME_PLAYER * 2)){
+
 			// pies del playerAlpha
 			float Alphx = InsList[cont].x + 14;
 			float Alphy = InsList[cont].y + 18;
@@ -309,7 +312,8 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	Game* Insgame = Game::instance;
 	World* InsWorld = Game::instance->my_world;
 	sPlayer* Insplayer1;
-	
+	Vector2 moviment = Vector2(16, -8);
+
 
 	if (Insgame->time - InsWorld->timeGameing < TIME_GAME_PLAYER)
 	{
@@ -388,13 +392,50 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 
 	if (Insplayer1->isValid(target))
 		Insplayer1->pos = target; 
+
+	int x[2];
+	int y = ((Insplayer1->pos.y + (18 * 1) - moviment.y) / 8);
+
+	for (int i = 0; i < 2; i++)
+	{
+		x[i] = ((Insplayer1->pos.x + (14 * i) - moviment.x) / 8);
+		sCell celda = InsWorld->map[InsWorld->level]->getCell(x[i], y);
+		//Si entra a la cueva
+		if (celda.type == 163 || celda.type == 164 || celda.type == 112 || celda.type == 128 || celda.type == 96 || celda.type == 144)
+		{
+			InsWorld->nextLevel = true;
+			InsWorld->movPlayer1.clear();
+			InsWorld->contMov = 0;
+			if (InsWorld->level == 1 && InsWorld->nextLevel == true)
+			{
+				Insgame->current_stage = Insgame->win_stage;
+			}
+			for (int i = 0; i < N_PLAYER; i++)
+			{
+				Game::instance->my_world->player[i] = sPlayer(InsWorld->playerReal); //incialitze player
+			}
+
+			InsWorld->timeGameing = Insgame->time;
+			InsWorld->nextLevel = false;
+			InsWorld->level = 1;
+		}
+	}
 }
 
 void  PlayStage::nextSteep() 
 {
 	Game* Insgame = Game::instance;
+	World* InsWorld = Game::instance->my_world;
+
+
 	//IF no llega a cueva
-	Insgame->current_stage = Insgame->game_over;
+	if (InsWorld->nextLevel == false)
+	{
+		InsWorld->movPlayer1.clear();
+		InsWorld->contMov = 0;
+		Insgame->current_stage = Insgame->game_over;
+
+	}
 
 }
 void GameOver::render(Image& framebuffer) 
@@ -426,9 +467,50 @@ void GameOver::update(double seconds_elapsed)
 		
 		InsWorld->movPlayer1.clear();
 		InsWorld->contMov = 0;
+		InsWorld->timeGameing = Insgame->time;
+		InsWorld->nextLevel = false;
+		InsWorld->level = 0;
 		Insgame->current_stage = Insgame->intro_stage;
 
 		
+	}
+}
+
+void Win::render(Image& framebuffer)
+{
+	Game* Insgame = Game::instance; //singelton	
+	World* InsWorld = Game::instance->my_world;
+
+	framebuffer.fill(Color::CYAN);								//fills the image with one color
+	//framebuffer.drawImage(InsWorld->sprite, 0, 0, framebuffer.width, framebuffer.height);			//draws a scaled image
+
+	framebuffer.drawText("You Win", framebuffer.width / 4, framebuffer.height / 5, InsWorld->font);
+	//draws some text using a bitmap font in an image (assuming every char is 7x9)
+	//framebuffer.drawText(toString(Game::instance->time), 1, 10, my_world->minifont, 4, 6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
+	//framebuffer.drawText(toString(Insgame->time), 1, 10, InsWorld->minifont, 4, 6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
+
+	//void drawText( std::string text, int x, int y, const Image& bitmapfont, int font_w = 7, int font_h = 9, int first_char = 32);
+
+
+	//audio intro
+	//Insgame->synth.playSample("data/lassambience1.wav", 2, true);
+}
+
+void Win::update(double seconds_elapsed)
+{
+	Game* Insgame = Game::instance;
+	World* InsWorld = Game::instance->my_world;
+	if (Input::isKeyPressed(SDL_SCANCODE_RETURN)) //if key up
+	{
+
+		InsWorld->movPlayer1.clear();
+		InsWorld->contMov = 0;
+		InsWorld->timeGameing = Insgame->time;
+		InsWorld->nextLevel = false;
+		InsWorld->level = 0;
+		Insgame->current_stage = Insgame->intro_stage;
+
+
 	}
 }
 
@@ -474,24 +556,24 @@ bool sPlayer::isValid(Vector2 positionPlayer)
 	Vector2 moviment = Vector2(16, -8);
 	int cs = InsWorld->tileset.width / 16;
 	int x[2]; 
-	int y[2]; 
+	int y= ((positionPlayer.y + (18 * 1) - moviment.y) / cs);
 
-	//std::cout << x << " " << y << "\n";
 	for (int i = 0; i < 2; i++)
 	{
 		x[i] = ((positionPlayer.x +(14 *i) - moviment.x) / cs);
 
 	}
 	
-	y[0] = ((positionPlayer.y + (18 * 1) - moviment.y) / cs);
+	std::cout << x[1] << " " << y << "\n";
+
 	   
 	for (int i = 0; i < 2; i++)
 	{
-		
-		if (InsWorld->map[InsWorld->level]->getCell(x[i], y[0]).type == 64)
+		if (InsWorld->map[InsWorld->level]->getCell(x[i], y).type == 64)
 			return false;
 		
 	}
+
 	//if (InsWorld->map[mapActual]->getCell(x, y).type == 93 || InsWorld->map[mapActual]->getCell(x, Per_h).type == 93
 	//	|| InsWorld->map[mapActual]->getCell(Per_w, y).type == 93 || InsWorld->map[mapActual]->getCell(Per_w, Per_h).type == 93 )
 	//{
