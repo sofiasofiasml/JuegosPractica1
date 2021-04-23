@@ -115,24 +115,7 @@ void IntroStage::update(double seconds_elapsed)
 	Game* Insgame = Game::instance;
 	sPlayer* Insplayer1 = &Game::instance->my_world->player[0];
 	World* InsWorld = Game::instance->my_world;
-	/*
-	sPlayer* Insplayer2 = &Game::instance->my_world->player2;*/
 	sButton* Insbutton = &Game::instance->my_world->inicio;
-
-	//Read the keyboard state, to see all the keycodes: https://wiki.libsdl.org/SDL_Keycode
-	if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
-	{
-	}
-	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
-	{
-	}
-
-	//example of 'was pressed'
-	//if (Input::wasKeyPressed(SDL_SCANCODE_A)) //if key A was pressed
-	//{
-	//	Game::instance->current_stage = Game::instance->play_stage;
-	//	Game::instance->synth.stopAll();
-	//}
 
 	//press button inicio
 	if (Input::mouse_state==1 &&(Input::mouse_position.x > Insbutton->WsquareIni_PointW && 
@@ -149,29 +132,13 @@ void IntroStage::update(double seconds_elapsed)
 		Insgame->synth.stopAll();
 		Insgame->current_stage = Insgame->play_stage;
 	}
-
-	//to read the gamepad state
-	if (Input::gamepads[0].isButtonPressed(A_BUTTON)) //if the A button is pressed
-	{
-	}
-
-	if (Input::gamepads[0].direction & PAD_UP) //left stick pointing up
-	{
-		//bgcolor.set(0, 255, 0);
-	}
-
 }
 
-//PLayer
+//Player
 void PlayStage::render(Image& framebuffer)
 {
-	//singelton
-	Game* Insgame = Game::instance;
-	World* InsWorld = Game::instance->my_world;
-	sPlayer* Insplayer1;
-	sPlayer* InsplayerAlpha;
 	
-	framebuffer.fill(Color::CYAN);								//fills the image with one color
+	framebuffer.fill(Color::CYAN);	//fills the image with one color
 	// render cells
 	renderCells(framebuffer); 
 	
@@ -179,30 +146,38 @@ void PlayStage::render(Image& framebuffer)
 	AppearObjects(framebuffer);
 
 	//Render Players
+	renderPlayers(framebuffer); 
+}
+
+void PlayStage::renderPlayers(Image& framebuffer) 
+{
+	Game* Insgame = Game::instance;
+	World* InsWorld = Game::instance->my_world;
+	sPlayer* Insplayer1;
+	sPlayer* InsplayerAlpha;
 	if (Insgame->time - InsWorld->timeGameing < TIME_GAME_PLAYER)
 	{
 		Insplayer1 = &Game::instance->my_world->player[0];
 	}
-	if (Insgame->time - InsWorld->timeGameing >= TIME_GAME_PLAYER && Insgame->time - InsWorld->timeGameing < (TIME_GAME_PLAYER*2))
+	if (Insgame->time - InsWorld->timeGameing >= TIME_GAME_PLAYER && Insgame->time - InsWorld->timeGameing < (TIME_GAME_PLAYER * 2))
 	{
 		Insplayer1 = &Game::instance->my_world->player[1];
 		InsplayerAlpha = &Game::instance->my_world->player[0];
 		// Plot player1 with the movements made previously
-		if (InsWorld->contMov < InsWorld->movPlayer1.size()-1)
+		if (InsWorld->movPlayer1.size()!=0 && InsWorld->contMov < InsWorld->movPlayer1.size() - 1)
 		{
 			//Calculate player1 direction and movement, when playing player 2
 			MovPlayerAlpha(InsplayerAlpha);
 			int currentAnimAlpha = InsplayerAlpha->moving ? (int(Insgame->time * InsplayerAlpha->animation_velocity) % InsplayerAlpha->animLenght) : 0;
-			framebuffer.drawImage(InsWorld->playerAlpha, InsWorld->movPlayer1[InsWorld->contMov].x, InsWorld->movPlayer1[InsWorld->contMov].y, 
+			framebuffer.drawImage(InsWorld->playerAlpha, InsWorld->movPlayer1[InsWorld->contMov].x, InsWorld->movPlayer1[InsWorld->contMov].y,
 				Area(14 * currentAnimAlpha, 18 * (int)InsplayerAlpha->dir, 14, 18));
 		}
-		InsWorld->contMov += 1; 
+		InsWorld->contMov += 1;
 	}
-	
+
 	int currentAnimP1 = Insplayer1->moving ? (int(Insgame->time * Insplayer1->animation_velocity) % Insplayer1->animLenght) : 0;
 	framebuffer.drawImage(Insplayer1->Implayer, Insplayer1->pos.x, Insplayer1->pos.y, Area(14 * currentAnimP1, 18 * (int)Insplayer1->dir, 14, 18));
 	framebuffer.drawText(toString((int)(Insgame->time - InsWorld->timeGameing)), 1, 10, InsWorld->minifont, 4, 6);
-
 
 }
 
@@ -386,6 +361,8 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	{
 		InsWorld->movPlayer1.clear();
 		InsWorld->contMov = 0;
+		InsWorld->level = 0; 
+		InsWorld->nextLevel = false; 
 		Insgame->current_stage = Insgame->intro_stage;
 
 	}
@@ -403,24 +380,23 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 		//Si entra a la cueva
 		if (celda.type == 163 || celda.type == 164 || celda.type == 112 || celda.type == 128 || celda.type == 96 || celda.type == 144)
 		{
-			InsWorld->nextLevel = true;
-			InsWorld->movPlayer1.clear();
-			InsWorld->contMov = 0;
-			if (InsWorld->level == 1 && InsWorld->nextLevel == true)
-			{
-				Insgame->current_stage = Insgame->win_stage;
+			//va al Level 2, si pasa por la cueva y esta en el level 1
+			if(InsWorld->level == 0 && InsWorld->nextLevel == true)
+				Insgame->current_stage = Insgame->pause_stage;
+			else { //Win state, si esta al level 2 y pasa por la cueva
+				InsWorld->nextLevel = true;
+				InsWorld->movPlayer1.clear();
+				InsWorld->contMov = 0;
+				if (InsWorld->level == 1 && InsWorld->nextLevel == true)
+				{
+					Insgame->current_stage = Insgame->win_stage;
+				}
 			}
-			for (int i = 0; i < N_PLAYER; i++)
-			{
-				Game::instance->my_world->player[i] = sPlayer(InsWorld->playerReal); //incialitze player
-			}
-
-			InsWorld->timeGameing = Insgame->time;
-			InsWorld->nextLevel = false;
-			InsWorld->level = 1;
 		}
 	}
 }
+
+
 
 void  PlayStage::nextSteep() 
 {
@@ -438,31 +414,57 @@ void  PlayStage::nextSteep()
 	}
 
 }
+
+void PauseLevel1to2::render(Image& framebuffer)
+{
+	Game* Insgame = Game::instance; //singelton	
+	World* InsWorld = Game::instance->my_world;
+
+	framebuffer.fill(Color::CYAN);								//fills the image with one color
+
+	framebuffer.drawText("Level 2", framebuffer.width / 4, framebuffer.height / 5, InsWorld->font);
+
+}
+
+void PauseLevel1to2::update(double seconds_elapsed)
+{
+	Game* Insgame = Game::instance;
+	World* InsWorld = Game::instance->my_world;
+	if (Input::isKeyPressed(SDL_SCANCODE_RETURN)) //if key ENTER
+	{
+		InsWorld->nextLevel = true;
+		InsWorld->movPlayer1.clear();
+		InsWorld->contMov = 0;
+		for (int i = 0; i < N_PLAYER; i++)
+		{
+			Game::instance->my_world->player[i] = sPlayer(InsWorld->playerReal); //incialitze player
+		}
+
+		InsWorld->timeGameing = Insgame->time;
+		InsWorld->nextLevel = false;
+		InsWorld->level = 1;
+		Insgame->current_stage = Insgame->play_stage;
+
+
+	}
+}
+
 void GameOver::render(Image& framebuffer) 
 {
 	Game* Insgame = Game::instance; //singelton	
 	World* InsWorld = Game::instance->my_world;
 
 	framebuffer.fill(Color::CYAN);								//fills the image with one color
-	//framebuffer.drawImage(InsWorld->sprite, 0, 0, framebuffer.width, framebuffer.height);			//draws a scaled image
 
 	framebuffer.drawText("GAME OVER", framebuffer.width / 4, framebuffer.height / 5, InsWorld->font);
-	//draws some text using a bitmap font in an image (assuming every char is 7x9)
-	//framebuffer.drawText(toString(Game::instance->time), 1, 10, my_world->minifont, 4, 6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
-	//framebuffer.drawText(toString(Insgame->time), 1, 10, InsWorld->minifont, 4, 6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
 
-	//void drawText( std::string text, int x, int y, const Image& bitmapfont, int font_w = 7, int font_h = 9, int first_char = 32);
-
-
-	//audio intro
-	//Insgame->synth.playSample("data/lassambience1.wav", 2, true);
 }
 
 void GameOver::update(double seconds_elapsed)
 {
 	Game* Insgame = Game::instance;
 	World* InsWorld = Game::instance->my_world;
-	if (Input::isKeyPressed(SDL_SCANCODE_RETURN)) //if key up
+	if (Input::isKeyPressed(SDL_SCANCODE_RETURN)) //if key ENTER
 	{
 		
 		InsWorld->movPlayer1.clear();
@@ -482,18 +484,8 @@ void Win::render(Image& framebuffer)
 	World* InsWorld = Game::instance->my_world;
 
 	framebuffer.fill(Color::CYAN);								//fills the image with one color
-	//framebuffer.drawImage(InsWorld->sprite, 0, 0, framebuffer.width, framebuffer.height);			//draws a scaled image
-
 	framebuffer.drawText("You Win", framebuffer.width / 4, framebuffer.height / 5, InsWorld->font);
-	//draws some text using a bitmap font in an image (assuming every char is 7x9)
-	//framebuffer.drawText(toString(Game::instance->time), 1, 10, my_world->minifont, 4, 6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
-	//framebuffer.drawText(toString(Insgame->time), 1, 10, InsWorld->minifont, 4, 6);	//draws some text using a bitmap font in an image (assuming every char is 4x6)
 
-	//void drawText( std::string text, int x, int y, const Image& bitmapfont, int font_w = 7, int font_h = 9, int first_char = 32);
-
-
-	//audio intro
-	//Insgame->synth.playSample("data/lassambience1.wav", 2, true);
 }
 
 void Win::update(double seconds_elapsed)
@@ -564,7 +556,7 @@ bool sPlayer::isValid(Vector2 positionPlayer)
 
 	}
 	
-	std::cout << x[1] << " " << y << "\n";
+	//std::cout << x[1] << " " << y << "\n";
 
 	   
 	for (int i = 0; i < 2; i++)
@@ -573,14 +565,8 @@ bool sPlayer::isValid(Vector2 positionPlayer)
 			return false;
 		
 	}
-
-	//if (InsWorld->map[mapActual]->getCell(x, y).type == 93 || InsWorld->map[mapActual]->getCell(x, Per_h).type == 93
-	//	|| InsWorld->map[mapActual]->getCell(Per_w, y).type == 93 || InsWorld->map[mapActual]->getCell(Per_w, Per_h).type == 93 )
-	//{
-	//	return false;
-	//}
 	
-		return true;
+	return true;
 	//if (screenx < -cs || screenx > framebuffer.width ||
 	//	screeny < -cs || screeny > framebuffer.height)
 }

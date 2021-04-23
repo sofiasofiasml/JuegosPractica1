@@ -38,6 +38,7 @@ public:
 	Stage* play_stage;
 	Stage* game_over;
 	Stage* win_stage;
+	Stage* pause_stage;
 	Stage* current_stage;
 	World* my_world;
 

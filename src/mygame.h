@@ -151,6 +151,7 @@ public:
 	void MovPlayerAlpha(sPlayer* InsplayerAlpha);
 	void AppearObjects(Image& framebuffer);
 	void renderCells(Image& framebuffer);
+	void renderPlayers(Image& framebuffer);
 	void nextSteep(); 
 };
 
@@ -165,6 +166,13 @@ public:
 	virtual void render(Image& framebuffer);
 	virtual void update(double seconds_elapsed);
 };
+
+class PauseLevel1to2 : public Stage {
+public:
+	virtual void render(Image& framebuffer);
+	virtual void update(double seconds_elapsed);
+};
+
 
 
 #endif
