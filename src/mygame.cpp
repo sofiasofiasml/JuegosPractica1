@@ -170,7 +170,7 @@ void PlayStage::renderPlayers(Image& framebuffer)
 		}
 		InsWorld->contMov += 1;
 	}
-
+	
 	int currentAnimP1 = Insplayer1->moving ? (int(Insgame->time * Insplayer1->animation_velocity) % Insplayer1->animLenght) : 0;
 	framebuffer.drawImage(Insplayer1->Implayer, Insplayer1->pos.x, Insplayer1->pos.y, Area(14 * currentAnimP1, 18 * (int)Insplayer1->dir, 14, 18));
 	framebuffer.drawText(toString((int)(Insgame->time - InsWorld->timeGameing)), 1, 10, InsWorld->minifont, 4, 6);
@@ -403,7 +403,7 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	}
 	//LEVEL 1: Solo puede DOWN si esta en la pos de la escalera y esta apretada la plataforma
 
-	if (InsWorld->level == 0 && InsWorld->objectEscalera == true && target.x > 20 && target.x < 45 && target.y > 30)
+	if (InsWorld->level == 0 && InsWorld->objectEscalera == true && target.x > 20 && target.x < 45 && target.y > 20)
 	{
 		if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
 		{
@@ -413,7 +413,7 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 
 		}
 	}
-	if (InsWorld->level == 1 && target.x > 13 && target.x < 31 && target.y > 70)
+	if (InsWorld->level == 1 && target.x > 13 && target.x < 31 && target.y > 60)
 	{
 		if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
 		{
@@ -513,6 +513,7 @@ void  PlayStage::nextSteep()
 
 }
 
+//PauseLevel1to2
 void PauseLevel1to2::render(Image& framebuffer)
 {
 	Game* Insgame = Game::instance; //singelton	
@@ -545,7 +546,7 @@ void PauseLevel1to2::update(double seconds_elapsed)
 		Insgame->current_stage = Insgame->play_stage;
 	}
 }
-
+//GameOver
 void GameOver::render(Image& framebuffer) 
 {
 	Game* Insgame = Game::instance; //singelton	
@@ -572,7 +573,7 @@ void GameOver::update(double seconds_elapsed)
 		Insgame->current_stage = Insgame->intro_stage;		
 	}
 }
-
+//Win
 void Win::render(Image& framebuffer)
 {
 	Game* Insgame = Game::instance; //singelton	
@@ -664,10 +665,8 @@ bool sPlayer::isValid(Vector2 positionPlayer)
 					((positionPlayer.x + (14 * i) >= 35 && (positionPlayer.x + (14 * i) <= 40))||
 					(positionPlayer.x + (14 * i) >= 60 && (positionPlayer.x + (14 * i) <= 65)) || 
 					(positionPlayer.x + (14 * i) >= 85 && (positionPlayer.x + (14 * i) <= 90))))
-				{
-					
+				
 					return false;
-				}
 			}
 		}
 		if (InsWorld->objectsRock == 1) 
@@ -677,10 +676,7 @@ bool sPlayer::isValid(Vector2 positionPlayer)
 				if (((positionPlayer.y + 18) < 90 && (positionPlayer.y + 18) >= 56) &&
 					((positionPlayer.x + (14 * i) >= 60 && (positionPlayer.x + (14 * i) <= 65)) ||
 						(positionPlayer.x + (14 * i) >= 85 && (positionPlayer.x + (14 * i) <= 90))))
-				{
-
 					return false;
-				}
 			}
 		
 		}
@@ -691,10 +687,7 @@ bool sPlayer::isValid(Vector2 positionPlayer)
 				if (((positionPlayer.y + 18) < 90 && (positionPlayer.y + 18) >= 56) &&
 					((positionPlayer.x + (14 * i) >= 35 && (positionPlayer.x + (14 * i) <= 40)) ||
 						(positionPlayer.x + (14 * i) >= 85 && (positionPlayer.x + (14 * i) <= 90))))
-				{
-
 					return false;
-				}
 			}
 		
 		
@@ -706,10 +699,8 @@ bool sPlayer::isValid(Vector2 positionPlayer)
 				if (((positionPlayer.y + 18) < 90 && (positionPlayer.y + 18) >= 56) &&
 					((positionPlayer.x + (14 * i) >= 35 && (positionPlayer.x + (14 * i) <= 40)) ||
 						(positionPlayer.x + (14 * i) >= 60 && (positionPlayer.x + (14 * i) <= 65))))
-				{
-
 					return false;
-				}
+				
 			}
 		
 		}
@@ -720,10 +711,8 @@ bool sPlayer::isValid(Vector2 positionPlayer)
 	{
 		if ((positionPlayer.y < 0 || (positionPlayer.y + 18) > InsButton->h_framework ||
 			((positionPlayer.x + (14 * i) < 0 || (positionPlayer.x + (14 * i) >= InsButton->w_framework)))))
-		{
-
 			return false;
-		}
+		
 	}
 
 	return true;
