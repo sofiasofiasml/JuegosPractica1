@@ -245,7 +245,9 @@ void PlayStage::AppearObjects(Image& framebuffer)
 		{
 			//si esta en la plataforma
 			if (x >= 115 && x <= 135 && y >= 107 && y <= 112) {
+				//escalera
 				framebuffer.drawImage(InsWorld->objects, 30, 40, Area(0, 0, 11, 72));
+				//plataforma
 				framebuffer.drawRectangle(115, 110, 20, 2, Color(147, 157, 148));
 				//Insgame->synth.playSample("data/bip.wav", 0.5, false);
 				InsWorld->objectEscalera = true;
@@ -263,8 +265,10 @@ void PlayStage::AppearObjects(Image& framebuffer)
 			//si esta en la plataforma
 			if (Alphx >= 115 && Alphx <= 135 && Alphy >= 107 && Alphy <= 112 ||
 				x >= 115 && x <= 135 && y >= 107 && y <= 112) {
+				//escalera
 				framebuffer.drawImage(InsWorld->objects, 30, 40, Area(0, 0, 11, 72));
 				InsWorld->objectEscalera = true; 
+				//plataforma
 				framebuffer.drawRectangle(115, 110, 20, 2, Color(147, 157, 148));
 				//Insgame->synth.playSample("data/bip.wav", 0.5, false);
 
@@ -372,19 +376,49 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	Insplayer1->moving = false;
 		
 	Vector2 target = Insplayer1->pos;
-	if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
+	//LEVEL 1: Solo puede UP si esta en la pos de la escalera y esta apretada la plataforma
+	if (InsWorld->level == 0 && InsWorld->objectEscalera == true && target.x>20 && target.x < 50 && target.y > 30)
 	{
-		target.y -= Insplayer1->player_velocity * seconds_elapsed; 
-		Insplayer1->dir = eDIRECTION::UP;
-		Insplayer1->moving = true;		
+		if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
+		{
+			target.y -= Insplayer1->player_velocity * seconds_elapsed;
+			Insplayer1->dir = eDIRECTION::UP;
+			Insplayer1->moving = true;
+		}	
 	}
-	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
+	if (InsWorld->level == 1)
 	{
-		target.y += Insplayer1->player_velocity * seconds_elapsed;
-		Insplayer1->dir = eDIRECTION::DOWN;
-		Insplayer1->moving = true;
-		
+		if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
+		{
+			target.y -= Insplayer1->player_velocity * seconds_elapsed;
+			Insplayer1->dir = eDIRECTION::UP;
+			Insplayer1->moving = true;
+		}
 	}
+	//LEVEL 1: Solo puede DOWN si esta en la pos de la escalera y esta apretada la plataforma
+
+	if (InsWorld->level == 0 && InsWorld->objectEscalera == true && target.x > 20 && target.x < 50 && target.y > 30)
+	{
+		if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
+		{
+			target.y += Insplayer1->player_velocity * seconds_elapsed;
+			Insplayer1->dir = eDIRECTION::DOWN;
+			Insplayer1->moving = true;
+
+		}
+	}
+	if (InsWorld->level == 1)
+	{
+		if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
+		{
+			target.y += Insplayer1->player_velocity * seconds_elapsed;
+			Insplayer1->dir = eDIRECTION::DOWN;
+			Insplayer1->moving = true;
+
+		}
+	}
+
+
 	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
 	{
 		target.x += Insplayer1->player_velocity * seconds_elapsed;
