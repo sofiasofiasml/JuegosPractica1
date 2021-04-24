@@ -50,10 +50,10 @@ World::World()
 	timeGameing = 0.0f; 
 	contMov = 0; 
 	moviment = Vector2(16, -8);
-
-	ROCK = objects.getArea(40, 0, 20, 25); //creates an image given an area
-	ROCK.scale(50, 50); 
-
+	objectEscalera = false;
+	for (int i = 0; i < 3; i++) {
+		objectsRock[i] = false;
+	}
 	for (int i = 0; i < N_PLAYER; i++) {
 		this->player[i] = sPlayer(playerReal);
 	}
@@ -234,15 +234,21 @@ void PlayStage::AppearObjects(Image& framebuffer)
 	float x = Insplayer1->pos.x + 14;
 	float y = Insplayer1->pos.y + 18;
 
-	if (InsWorld->level == 0) //Primer nivel
+	//bool object
+	InsWorld->objectEscalera = false;
+
+	//LEVEL 1
+	if (InsWorld->level == 0) 
 	{
 		//Primer jugador
 		if (Insgame->time - InsWorld->timeGameing < TIME_GAME_PLAYER)
 		{
+			//si esta en la plataforma
 			if (x >= 115 && x <= 135 && y >= 107 && y <= 112) {
 				framebuffer.drawImage(InsWorld->objects, 30, 40, Area(0, 0, 11, 72));
 				framebuffer.drawRectangle(115, 110, 20, 2, Color(147, 157, 148));
 				//Insgame->synth.playSample("data/bip.wav", 0.5, false);
+				InsWorld->objectEscalera = true;
 
 			}
 			else
@@ -258,6 +264,7 @@ void PlayStage::AppearObjects(Image& framebuffer)
 			if (Alphx >= 115 && Alphx <= 135 && Alphy >= 107 && Alphy <= 112 ||
 				x >= 115 && x <= 135 && y >= 107 && y <= 112) {
 				framebuffer.drawImage(InsWorld->objects, 30, 40, Area(0, 0, 11, 72));
+				InsWorld->objectEscalera = true; 
 				framebuffer.drawRectangle(115, 110, 20, 2, Color(147, 157, 148));
 				//Insgame->synth.playSample("data/bip.wav", 0.5, false);
 
@@ -266,9 +273,12 @@ void PlayStage::AppearObjects(Image& framebuffer)
 				framebuffer.drawRectangle(115, 107, 20, 5, Color(147, 157, 148));
 		}
 	}
-	//rocas
+	//LEVEL 2
 	if (InsWorld->level == 1)
 	{
+		//escalera
+		framebuffer.drawImage(InsWorld->objects, 17, 88, Area(30, 0, 15, 27));
+		//rock
 		rock_and_Plataform(framebuffer, 30, 110, 50, 112, 30); 
 		rock_and_Plataform(framebuffer, 70, 110, 90, 112, 50);
 		rock_and_Plataform(framebuffer, 110, 110, 130, 112, 70);
@@ -288,12 +298,12 @@ void PlayStage::rock_and_Plataform(Image& framebuffer, int limitX, int limitY, i
 	if (Insgame->time - InsWorld->timeGameing < TIME_GAME_PLAYER)
 	{
 		if (x >= limitX && x <= limitW && y >= limitY && y <= limitH) {
-			framebuffer.drawImage(InsWorld->ROCK, RoackX, 26);
+			framebuffer.drawImage(InsWorld->objects, RoackX, 26, Area(14, 0, 16, 33));
 			framebuffer.drawRectangle(limitX, limitY, 20, 2, Color(147, 157, 148));
 		}
 		else
 		{
-			framebuffer.drawImage(InsWorld->ROCK, RoackX, 56);
+			framebuffer.drawImage(InsWorld->objects, RoackX, 56, Area(14, 0, 16, 33));
 			framebuffer.drawRectangle(limitX, 107, 20, 5, Color(147, 157, 148));
 		}
 	}
@@ -305,12 +315,12 @@ void PlayStage::rock_and_Plataform(Image& framebuffer, int limitX, int limitY, i
 		//esta a la plataforma
 		if (Alphx >= limitX && Alphx <= limitW && Alphy >= limitY && Alphy <= limitH ||
 			x >= limitX && x <= limitW && y >= limitY && y <= limitH) {
-			framebuffer.drawImage(InsWorld->ROCK, RoackX, 26);
+			framebuffer.drawImage(InsWorld->objects, RoackX, 26, Area(14, 0, 16, 33));
 			framebuffer.drawRectangle(limitX, limitY, 20, 2, Color(147, 157, 148));
 		}
 		else
 		{
-			framebuffer.drawImage(InsWorld->ROCK, RoackX, 56);
+			framebuffer.drawImage(InsWorld->objects, RoackX, 56, Area(14, 0, 16, 33));
 			framebuffer.drawRectangle(limitX, 107, 20, 5, Color(147, 157, 148));
 		}
 	}
@@ -342,9 +352,6 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	Game* Insgame = Game::instance;
 	World* InsWorld = Game::instance->my_world;
 	sPlayer* Insplayer1;
-	//Vector2 moviment = Vector2(16, -8);
-
-
 	if (Insgame->time - InsWorld->timeGameing < TIME_GAME_PLAYER)
 	{
 		Insplayer1 = &Game::instance->my_world->player[0];
@@ -457,15 +464,12 @@ void  PlayStage::nextSteep()
 {
 	Game* Insgame = Game::instance;
 	World* InsWorld = Game::instance->my_world;
-
-
 	//If no llega a cueva
 	if (InsWorld->nextLevel == false)
 	{
 		InsWorld->movPlayer1.clear();
 		InsWorld->contMov = 0;
 		Insgame->current_stage = Insgame->game_over;
-
 	}
 
 }
@@ -496,13 +500,10 @@ void PauseLevel1to2::update(double seconds_elapsed)
 		{
 			Game::instance->my_world->player[i] = sPlayer(InsWorld->playerReal); //incialitze player
 		}
-
 		InsWorld->timeGameing = Insgame->time;
 		InsWorld->nextLevel = false;
 		InsWorld->level = 1;
 		Insgame->current_stage = Insgame->play_stage;
-
-
 	}
 }
 
@@ -524,15 +525,12 @@ void GameOver::update(double seconds_elapsed)
 	World* InsWorld = Game::instance->my_world;
 	if (Input::isKeyPressed(SDL_SCANCODE_RETURN)) //if key ENTER
 	{
-		
 		InsWorld->movPlayer1.clear();
 		InsWorld->contMov = 0;
 		InsWorld->timeGameing = Insgame->time;
 		InsWorld->nextLevel = false;
 		InsWorld->level = 0;
-		Insgame->current_stage = Insgame->intro_stage;
-
-		
+		Insgame->current_stage = Insgame->intro_stage;		
 	}
 }
 
@@ -553,15 +551,12 @@ void Win::update(double seconds_elapsed)
 	World* InsWorld = Game::instance->my_world;
 	if (Input::isKeyPressed(SDL_SCANCODE_RETURN)) //if key up
 	{
-
 		InsWorld->movPlayer1.clear();
 		InsWorld->contMov = 0;
 		InsWorld->timeGameing = Insgame->time;
 		InsWorld->nextLevel = false;
 		InsWorld->level = 0;
 		Insgame->current_stage = Insgame->intro_stage;
-
-
 	}
 }
 
@@ -589,9 +584,6 @@ GameMap* GameMap::loadGameMap(const char* filename)
 	for (int x = 0; x < map->width; x++) {
 		for (int y = 0; y < map->height; y++) {
 			map->getCell(x, y).type = (eCellType)cells[x + y * map->width];
-
-			//if (map->getCell(x, y).type == FLOOR)
-			//	std::cout << "HOLA" << "\n";
 		}
 	}
 
@@ -612,14 +604,12 @@ bool sPlayer::isValid(Vector2 positionPlayer)
 	{
 		x[i] = ((positionPlayer.x +(14 *i) - InsWorld->moviment.x) / cs);
 
-	}
-	
-	//std::cout << x[1] << " " << y << "\n";
-
-	   
+	}	   
 	for (int i = 0; i < 2; i++)
 	{
 		if (InsWorld->map[InsWorld->level]->getCell(x[i], y).type == FLOOR)
+			return false;
+		if (InsWorld->map[InsWorld->level]->getCell(x[i], y).type == PLATAFORM2 || InsWorld->map[InsWorld->level]->getCell(x[i], y).type == PLATAFORM)
 			return false;
 		
 	}

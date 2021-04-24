@@ -19,7 +19,9 @@ enum eCellType : uint8 {
 	WALL,
 	DOOR,
 	CHEST, 
-	FLOOR = 11, 
+	FLOOR = 11,
+	PLATAFORM = 18,
+	PLATAFORM2 = 9,
 };
 
 enum eItemType : uint8 {
@@ -111,22 +113,24 @@ public:
 	Image font;
 	Image minifont;
 	Image sprite;
-	//Image LoreGame;
 	Image objects; 
 	Image playerReal;
 	Image playerAlpha;
-	Image ROCK; 
-	//map
-	Image tileset;
-	GameMap* map[N_NIVEL];
+
+	bool objectEscalera; 
+	bool objectsRock[3]; 
 	int level;
 	bool nextLevel; 
-	float timeGameing; 
-	int contMov; 
 
+	//Map
+	Image tileset;
+	GameMap* map[N_NIVEL];
 	Vector2 moviment;
+
 	//List moviments player1
 	vector<Vector2> movPlayer1;
+	float timeGameing;
+	int contMov;
 
 	sPlayer player[N_PLAYER];
 	sButton inicio;
