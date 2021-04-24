@@ -118,7 +118,7 @@ public:
 	Image playerAlpha;
 
 	bool objectEscalera; 
-	bool objectsRock[3]; 
+	int objectsRock; 
 	int level;
 	bool nextLevel; 
 
@@ -158,7 +158,7 @@ public:
 	void AppearObjects(Image& framebuffer);
 	void renderCells(Image& framebuffer);
 	void renderPlayers(Image& framebuffer);
-	void rock_and_Plataform(Image& framebuffer, int limitX, int limitY, int limitW, int limitH, int RoackX);
+	void rock_and_Plataform(Image& framebuffer, int limitX, int limitY, int limitW, int limitH, int RoackX, int numRock);
 	sPlayer* InstancePlayer();
 	void nextSteep(); 
 };
