@@ -254,6 +254,7 @@ void PlayStage::AppearObjects(Image& framebuffer)
 			// pies del playerAlpha
 			float Alphx = InsList[cont].x + 14;
 			float Alphy = InsList[cont].y + 18;
+			//si esta en la plataforma
 			if (Alphx >= 115 && Alphx <= 135 && Alphy >= 107 && Alphy <= 112 ||
 				x >= 115 && x <= 135 && y >= 107 && y <= 112) {
 				framebuffer.drawImage(InsWorld->objects, 30, 40, Area(0, 0, 11, 72));
@@ -268,10 +269,52 @@ void PlayStage::AppearObjects(Image& framebuffer)
 	//rocas
 	if (InsWorld->level == 1)
 	{
-		framebuffer.drawImage(InsWorld->ROCK, 30, 56);
-		framebuffer.drawImage(InsWorld->ROCK, 50, 56);
-		framebuffer.drawImage(InsWorld->ROCK, 70, 56);
+		rock_and_Plataform(framebuffer, 30, 110, 50, 112, 30); 
+		rock_and_Plataform(framebuffer, 70, 110, 90, 112, 50);
+		rock_and_Plataform(framebuffer, 110, 110, 130, 112, 70);
 	}
+}
+
+void PlayStage::rock_and_Plataform(Image& framebuffer, int limitX, int limitY, int limitW, int limitH, int RoackX) 
+{
+	Game* Insgame = Game::instance;
+	World* InsWorld = Game::instance->my_world;
+	sPlayer* Insplayer1 = InstancePlayer();
+	vector<Vector2> InsList = Game::instance->my_world->movPlayer1;
+	int cont = Game::instance->my_world->contMov;
+	float x = Insplayer1->pos.x + 14;
+	float y = Insplayer1->pos.y + 18;
+
+	if (Insgame->time - InsWorld->timeGameing < TIME_GAME_PLAYER)
+	{
+		if (x >= limitX && x <= limitW && y >= limitY && y <= limitH) {
+			framebuffer.drawImage(InsWorld->ROCK, RoackX, 26);
+			framebuffer.drawRectangle(limitX, limitY, 20, 2, Color(147, 157, 148));
+		}
+		else
+		{
+			framebuffer.drawImage(InsWorld->ROCK, RoackX, 56);
+			framebuffer.drawRectangle(limitX, 107, 20, 5, Color(147, 157, 148));
+		}
+	}
+
+	if (InsList.size() != 0 && cont < InsList.size() && Insgame->time - InsWorld->timeGameing >= TIME_GAME_PLAYER &&
+		Insgame->time - InsWorld->timeGameing < (TIME_GAME_PLAYER * 2)) {
+		float Alphx = InsList[cont].x + 14;
+		float Alphy = InsList[cont].y + 18;
+		//esta a la plataforma
+		if (Alphx >= limitX && Alphx <= limitW && Alphy >= limitY && Alphy <= limitH ||
+			x >= limitX && x <= limitW && y >= limitY && y <= limitH) {
+			framebuffer.drawImage(InsWorld->ROCK, RoackX, 26);
+			framebuffer.drawRectangle(limitX, limitY, 20, 2, Color(147, 157, 148));
+		}
+		else
+		{
+			framebuffer.drawImage(InsWorld->ROCK, RoackX, 56);
+			framebuffer.drawRectangle(limitX, 107, 20, 5, Color(147, 157, 148));
+		}
+	}
+
 }
 
 //Calculate player1 direction and movement, when playing player 2
@@ -382,12 +425,13 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	if (Insplayer1->isValid(target))
 		Insplayer1->pos = target; 
 
+	int cs = InsWorld->tileset.width / 16;
 	int x[2];
-	int y = ((Insplayer1->pos.y + (18 * 1) - InsWorld->moviment.y) / 8);
+	int y = ((Insplayer1->pos.y + (18 * 1) - InsWorld->moviment.y) / cs);
 
 	for (int i = 0; i < 2; i++)
 	{
-		x[i] = ((Insplayer1->pos.x + (14 * i) - InsWorld->moviment.x) / 8);
+		x[i] = ((Insplayer1->pos.x + (14 * i) - InsWorld->moviment.x) / cs);
 		sCell celda = InsWorld->map[InsWorld->level]->getCell(x[i], y);
 		//Si entra a la cueva
 		if (celda.type >= 14 && celda.type <= 17)

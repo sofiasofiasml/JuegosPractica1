@@ -154,6 +154,7 @@ public:
 	void AppearObjects(Image& framebuffer);
 	void renderCells(Image& framebuffer);
 	void renderPlayers(Image& framebuffer);
+	void rock_and_Plataform(Image& framebuffer, int limitX, int limitY, int limitW, int limitH, int RoackX);
 	sPlayer* InstancePlayer();
 	void nextSteep(); 
 };
