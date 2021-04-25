@@ -116,11 +116,13 @@ public:
 	Image objects; 
 	Image playerReal;
 	Image playerAlpha;
+	Image keyboard;
 
 	bool objectEscalera; 
 	int objectsRock; 
 	int level;
 	bool nextLevel; 
+	bool nextImageIntro; 
 
 	//Map
 	Image tileset;
@@ -181,6 +183,11 @@ public:
 	virtual void update(double seconds_elapsed);
 };
 
+class Explication : public Stage {
+public:
+	virtual void render(Image& framebuffer);
+	virtual void update(double seconds_elapsed);
+};
 
 
 #endif

@@ -43,6 +43,7 @@ World::World()
 	sprite.loadTGA("data/background2.tga"); //example to load an sprite
 	objects.loadTGA("data/objects.tga");
 	tileset.loadTGA("data/tileset.tga");
+	keyboard.loadTGA("data/keyboard.tga"); 
 	map[0] = map[0]->loadGameMap("data/mymapL1.map");
 	map[1] = map[1]->loadGameMap("data/mymapL2.map");
 	level = 0; 
@@ -51,6 +52,7 @@ World::World()
 	contMov = 0; 
 	moviment = Vector2(16, -8);
 	objectEscalera = false;
+	nextImageIntro = false; 
 	
 	objectsRock = 0;
 	
@@ -106,7 +108,7 @@ void IntroStage::bottonIntro(Image& framebuffer)
 	}
 
 	// Text to button 
-	framebuffer.drawText("Start", framebuffer.width / 2 - 8, framebuffer.height / 2 + framebuffer.height / 3, InsWorld->minifont, 4, 6);
+	framebuffer.drawText("Inicio", framebuffer.width / 2 - 10, framebuffer.height / 2 + framebuffer.height / 3, InsWorld->minifont, 4, 6);
 
 }
 
@@ -132,10 +134,73 @@ void IntroStage::update(double seconds_elapsed)
 
 		InsWorld->timeGameing = Insgame->time; 
 	
-		Insgame->current_stage = Insgame->play_stage;
+		Insgame->current_stage = Insgame->explic_stage;
 	}
 }
 
+//Explicacion
+
+void Explication::render(Image& framebuffer) {
+
+	Game* Insgame = Game::instance; //singelton	
+	World* InsWorld = Game::instance->my_world;
+	Insgame->synth.stopAll(); 
+	framebuffer.fill(Color(106, 151, 111));	//fills the image with one color
+
+	if (InsWorld->nextImageIntro == false) {
+		framebuffer.drawText("Tienes 10 segundos para jugar con el ", 1, 10, InsWorld->minifont, 4, 6);
+		framebuffer.drawText("jugador de la realidad incial paralela ", 1, 20, InsWorld->minifont, 4, 6);
+		framebuffer.drawText("y despues 10 segundos para el segundo", 1, 30, InsWorld->minifont, 4, 6);
+		framebuffer.drawText("jugador. ", 1, 40, InsWorld->minifont, 4, 6);
+		framebuffer.drawText("Debes desbloquear el puzzle para llegar", 1, 60, InsWorld->minifont, 4, 6);
+		framebuffer.drawText("a la entrada.", 1, 70, InsWorld->minifont, 4, 6);
+		if ((int)Insgame->time % 2)
+			framebuffer.drawText("Pulsa Enter para continuar", 50, 110, InsWorld->minifont, 4, 6);
+	}
+	else 
+	{
+		framebuffer.drawText("Teclado ", 63, 4, InsWorld->minifont, 4, 6);
+		framebuffer.drawText("Saltar ", 51, 79, InsWorld->minifont, 4, 6);
+		framebuffer.drawText("Solo en la ", 31, 51, InsWorld->minifont, 4, 6);
+		framebuffer.drawText("R ", 14, 94, InsWorld->minifont, 4, 6);
+		framebuffer.drawText("Reiniciar el juego ", 33, 95, InsWorld->minifont, 4, 6);
+		
+		framebuffer.drawImage(InsWorld->keyboard, 0, 0, framebuffer.width, framebuffer.height);			//draws a scaled image
+		//escalera
+		
+		framebuffer.drawImage(InsWorld->objects, 71, 40, Area(30, 0, 15, 27));
+		if ((int)Insgame->time % 2)
+			framebuffer.drawText("Pulsa Enter para continuar", 50, 110, InsWorld->minifont, 4, 6);
+	}
+
+	//framebuffer.drawText("4 DIMENSION", framebuffer.width / 4, framebuffer.height / 5, InsWorld->font);
+	////audio intro
+	//Insgame->synth.playSample("data/lassambience1.wav", 2, true);
+
+
+	
+}
+
+void Explication::update(double seconds_elapsed)
+{
+	//singelton
+	Game* Insgame = Game::instance;
+	sPlayer* Insplayer1 = &Game::instance->my_world->player[0];
+	World* InsWorld = Game::instance->my_world;
+	
+	if (Input::isKeyPressed(SDL_SCANCODE_RETURN) && InsWorld->nextImageIntro == false) //if key ENTER
+	{
+		InsWorld->nextImageIntro = true; 
+		InsWorld->timeGameing = Insgame->time;
+	}
+	//press entern 2 veces
+	if (Input::isKeyPressed(SDL_SCANCODE_RETURN) && InsWorld->nextImageIntro == true && (InsWorld->timeGameing+0.2) < Insgame->time) //if key ENTER
+	{
+		InsWorld->timeGameing = Insgame->time;
+
+		Insgame->current_stage = Insgame->play_stage;
+	}
+}
 //Player
 void PlayStage::render(Image& framebuffer)
 {
@@ -473,12 +538,17 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	{
 		Insgame->current_stage = Insgame->game_over;
 	}
+	if (Input::wasKeyPressed(SDL_SCANCODE_W)) //if key O state: GAME OVER
+	{
+		Insgame->current_stage = Insgame->win_stage;
+	}
 	if (Input::wasKeyPressed(SDL_SCANCODE_R)) //if key R state: intro
 	{
 		InsWorld->movPlayer1.clear();
 		InsWorld->contMov = 0;
 		InsWorld->level = 0; 
 		InsWorld->nextLevel = false; 
+		InsWorld->nextImageIntro = false; 
 		Insgame->current_stage = Insgame->intro_stage;
 
 	}
@@ -536,12 +606,12 @@ void PauseLevel1to2::render(Image& framebuffer)
 
 	framebuffer.fill(Color(106, 151, 111));	//fills the image with one color
 
-	framebuffer.drawText("Level 2", 55, 50, InsWorld->font);
+	framebuffer.drawText("Nivel 2", 55, 50, InsWorld->font);
 	//audio next level
 	Insgame->synth.playSample("data/level.wav", 1, false);
 
 	if ((int)Insgame->time % 2)
-		framebuffer.drawText("Continue Press Enter", 80, 110, InsWorld->minifont, 4, 6);
+		framebuffer.drawText("Pulsa Enter para continuar", 50, 110, InsWorld->minifont, 4, 6);
 
 }
 
@@ -572,11 +642,11 @@ void GameOver::render(Image& framebuffer)
 
 	framebuffer.fill(Color(106, 151, 111));								//fills the image with one color
 
-	framebuffer.drawText("GAME OVER", 50, 50, InsWorld->font);
+	framebuffer.drawText("HAS PERDIDO", 45, 50, InsWorld->font);
 	//audio game_over
-	Insgame->synth.playSample("data/game_over.wav", 1, false);
+	Insgame->synth.playSample("data/game_over.wav", 0.2, false);
 	if ((int)Insgame->time % 2)
-		framebuffer.drawText("Continue Press Enter", 80, 110, InsWorld->minifont, 4, 6);
+		framebuffer.drawText("Pulsa Enter para continuar", 50, 110, InsWorld->minifont, 4, 6);
 }
 
 void GameOver::update(double seconds_elapsed)
@@ -590,6 +660,7 @@ void GameOver::update(double seconds_elapsed)
 		InsWorld->timeGameing = Insgame->time;
 		InsWorld->nextLevel = false;
 		InsWorld->level = 0;
+		InsWorld->nextImageIntro = false;
 		Insgame->current_stage = Insgame->intro_stage;		
 	}
 }
@@ -600,11 +671,11 @@ void Win::render(Image& framebuffer)
 	World* InsWorld = Game::instance->my_world;
 
 	framebuffer.fill(Color(106, 151, 111));								//fills the image with one color
-	framebuffer.drawText("You Win", 55, 50, InsWorld->font);
+	framebuffer.drawText("HAS GANADO", 45, 50, InsWorld->font);
 	//audio win
-	Insgame->synth.playSample("data/win.wav", 1, false);
+	Insgame->synth.playSample("data/win.wav", 0.2, false);
 	if((int)Insgame->time % 2 )
-		framebuffer.drawText("Continue Press Enter", 80, 110, InsWorld->minifont, 4, 6);
+		framebuffer.drawText("Pulsa Enter para continuar", 50, 110, InsWorld->minifont, 4, 6);
 }
 
 void Win::update(double seconds_elapsed)
@@ -618,6 +689,7 @@ void Win::update(double seconds_elapsed)
 		InsWorld->timeGameing = Insgame->time;
 		InsWorld->nextLevel = false;
 		InsWorld->level = 0;
+		InsWorld->nextImageIntro = false;
 		Insgame->current_stage = Insgame->intro_stage;
 	}
 }
