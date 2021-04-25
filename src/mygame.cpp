@@ -170,7 +170,11 @@ void PlayStage::renderPlayers(Image& framebuffer)
 		}
 		InsWorld->contMov += 1;
 	}
-	
+	// Si desaparece escalera, el personaje cae (gravedad)
+	if (InsWorld->level ==0 && InsWorld->objectEscalera == false && Insplayer1->pos.x >25 && Insplayer1->pos.x <= 41 && Insplayer1->pos.y > 25 && Insplayer1->pos.y < 90) 
+	{
+		Insplayer1->pos.y = 93; 
+	}
 	int currentAnimP1 = Insplayer1->moving ? (int(Insgame->time * Insplayer1->animation_velocity) % Insplayer1->animLenght) : 0;
 	framebuffer.drawImage(Insplayer1->Implayer, Insplayer1->pos.x, Insplayer1->pos.y, Area(14 * currentAnimP1, 18 * (int)Insplayer1->dir, 14, 18));
 	framebuffer.drawText(toString((int)(Insgame->time - InsWorld->timeGameing)), 1, 10, InsWorld->minifont, 4, 6);
@@ -245,7 +249,7 @@ void PlayStage::AppearObjects(Image& framebuffer)
 		if (Insgame->time - InsWorld->timeGameing < TIME_GAME_PLAYER)
 		{
 			//si esta en la plataforma
-			if (x >= 115 && x <= 135 && y >= 107 && y <= 112) {
+			if (x >= 118 && x <= 146 && y >= 107 && y <= 112) {
 				//escalera
 				framebuffer.drawImage(InsWorld->objects, 30, 40, Area(0, 0, 11, 72));
 				//plataforma
@@ -264,8 +268,8 @@ void PlayStage::AppearObjects(Image& framebuffer)
 			float Alphx = InsList[cont].x + 14;
 			float Alphy = InsList[cont].y + 18;
 			//si esta en la plataforma
-			if (Alphx >= 115 && Alphx <= 135 && Alphy >= 107 && Alphy <= 112 ||
-				x >= 115 && x <= 135 && y >= 107 && y <= 112) {
+			if (Alphx >= 118 && Alphx <= 146 && Alphy >= 107 && Alphy <= 112 ||
+				x >= 118 && x <= 146 && y >= 107 && y <= 112) {
 				//escalera
 				framebuffer.drawImage(InsWorld->objects, 30, 40, Area(0, 0, 11, 72));
 				InsWorld->objectEscalera = true; 
@@ -282,7 +286,7 @@ void PlayStage::AppearObjects(Image& framebuffer)
 	if (InsWorld->level == 1)
 	{
 		//escalera
-		framebuffer.drawImage(InsWorld->objects, 17, 88, Area(30, 0, 15, 27));
+		framebuffer.drawImage(InsWorld->objects, 15, 88, Area(30, 0, 15, 27));
 		//rock
 		rock_and_Plataform(framebuffer, 30, 110, 50, 112, 30, 1); 
 		rock_and_Plataform(framebuffer, 70, 110, 90, 112, 55, 2);
@@ -303,7 +307,7 @@ void PlayStage::rock_and_Plataform(Image& framebuffer, int limitX, int limitY, i
 	if (Insgame->time - InsWorld->timeGameing < TIME_GAME_PLAYER)
 	{
 		//esta en la plataforma
-		if (x >= limitX && x <= limitW && y >= limitY && y <= limitH) {
+		if (x >= limitX+3 && x <= limitW+11 && y >= limitY && y <= limitH) {
 			framebuffer.drawImage(InsWorld->objects, RoackX, 26, Area(14, 0, 16, 33));
 			framebuffer.drawRectangle(limitX, limitY, 20, 2, Color(147, 157, 148));
 			InsWorld->objectsRock = numRock;
@@ -321,8 +325,8 @@ void PlayStage::rock_and_Plataform(Image& framebuffer, int limitX, int limitY, i
 		float Alphx = InsList[cont].x + 14;
 		float Alphy = InsList[cont].y + 18;
 		//esta a la plataforma
-		if (Alphx >= limitX && Alphx <= limitW && Alphy >= limitY && Alphy <= limitH ||
-			x >= limitX && x <= limitW && y >= limitY && y <= limitH) {
+		if (Alphx >= limitX+3 && Alphx <= limitW+11 && Alphy >= limitY && Alphy <= limitH ||
+			x >= limitX+3 && x <= limitW+11 && y >= limitY && y <= limitH) {
 			framebuffer.drawImage(InsWorld->objects, RoackX, 26, Area(14, 0, 16, 33));
 			framebuffer.drawRectangle(limitX, limitY, 20, 2, Color(147, 157, 148));
 			InsWorld->objectsRock = numRock;
@@ -382,7 +386,7 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 		
 	Vector2 target = Insplayer1->pos;
 	//LEVEL 1: Solo puede UP si esta en la pos de la escalera y esta apretada la plataforma
-	if (InsWorld->level == 0 && InsWorld->objectEscalera == true && target.x>20 && target.x < 50 && target.y > 30)
+	if (InsWorld->level == 0 && InsWorld->objectEscalera == true && target.x > 25 && target.x < 32 && target.y > 30)
 	{
 		if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
 		{
@@ -391,7 +395,7 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 			Insplayer1->moving = true;
 		}	
 	}
-	if (InsWorld->level == 1 && target.x > 13 && target.x < 31 && target.y > 70)
+	if (InsWorld->level == 1 && target.x > 13 && target.x < 17 && target.y > 70)
 	{
 		if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
 		{
@@ -403,7 +407,7 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	}
 	//LEVEL 1: Solo puede DOWN si esta en la pos de la escalera y esta apretada la plataforma
 
-	if (InsWorld->level == 0 && InsWorld->objectEscalera == true && target.x > 20 && target.x < 45 && target.y > 20)
+	if (InsWorld->level == 0 && InsWorld->objectEscalera == true && target.x > 25 && target.x < 32 && target.y > 20)
 	{
 		if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
 		{
@@ -413,7 +417,7 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 
 		}
 	}
-	if (InsWorld->level == 1 && target.x > 13 && target.x < 31 && target.y > 60)
+	if (InsWorld->level == 1 && target.x > 13 && target.x < 17 && target.y > 60)
 	{
 		if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
 		{
@@ -424,20 +428,46 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 		}
 	}
 
-	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
-	{
-		target.x += Insplayer1->player_velocity * seconds_elapsed;
-		Insplayer1->dir = eDIRECTION::RIGHT;
-		Insplayer1->moving = true;
-		
+	// si esta en la escalera no pueda ir a la derecha ni a la izquierda 
+	if ((InsWorld->level == 0 && (target.y < 35 || target.y > 92) )|| (InsWorld->level == 1 && (target.y < 70 || target.y > 92)) ) {
+	
+		if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
+		{
+			target.x += Insplayer1->player_velocity * seconds_elapsed;
+			Insplayer1->dir = eDIRECTION::RIGHT;
+			Insplayer1->moving = true;
+
+		}
+
+		if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) //if key left
+		{
+			target.x -= Insplayer1->player_velocity * seconds_elapsed;
+			Insplayer1->dir = eDIRECTION::LEFT;
+			Insplayer1->moving = true;
+
+		}
+	
 	}
-	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) //if key left
-	{
-		target.x -= Insplayer1->player_velocity * seconds_elapsed;
-		Insplayer1->dir = eDIRECTION::LEFT;
-		Insplayer1->moving = true;
-		
-	}
+	
+	//if (InsWorld->level == 1) {
+
+	//	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
+	//	{
+	//		target.x += Insplayer1->player_velocity * seconds_elapsed;
+	//		Insplayer1->dir = eDIRECTION::RIGHT;
+	//		Insplayer1->moving = true;
+
+	//	}
+
+	//	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) //if key left
+	//	{
+	//		target.x -= Insplayer1->player_velocity * seconds_elapsed;
+	//		Insplayer1->dir = eDIRECTION::LEFT;
+	//		Insplayer1->moving = true;
+
+	//	}
+
+	//}
 	//JUMP 
 	// Si pasan 0.5 segundos de haber apretado el espacio para saltar
 	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE) == false && Insplayer1->jump != 0.0f && Insgame->time > Insplayer1->jump + 0.2f)
