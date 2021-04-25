@@ -159,10 +159,9 @@ void Game::showFramebuffer(Image* img)
 }
 
 //AUDIO STUFF ********************
-
 SDL_AudioSpec audio_spec;
 
-void AudioCallback(void*  userdata,
+void AudioCallback(void* userdata,
 	Uint8* stream,
 	int    len)
 {
@@ -176,22 +175,45 @@ void AudioCallback(void*  userdata,
 	audio_time += len / (double)audio_spec.freq;
 }
 
-void Game::enableAudio()
+void Game::enableAudio(int device)
 {
+	const char* selected_device_name = NULL;
+	if (device != -1)
+	{
+		int i, count = SDL_GetNumAudioDevices(0);
+		if (device >= count)
+			device = 0; //default device
+
+		for (i = 0; i < count; ++i) {
+			const char* name = SDL_GetAudioDeviceName(i, 0);
+			if (i == device)
+				selected_device_name = name;
+			std::cout << (i == device ? " *" : " -") << " Audio device " << i << ": " << name << std::endl;
+		}
+	}
+
 	SDL_memset(&audio_spec, 0, sizeof(audio_spec)); /* or SDL_zero(want) */
 	audio_spec.freq = 48000;
 	audio_spec.format = AUDIO_F32;
 	audio_spec.channels = 1;
 	audio_spec.samples = 1024;
 	audio_spec.callback = AudioCallback; /* you wrote this function elsewhere. */
-	if (SDL_OpenAudio(&audio_spec, &audio_spec) < 0) {
+
+	SDL_AudioDeviceID dev;
+
+	if (selected_device_name)
+		dev = SDL_OpenAudioDevice(selected_device_name, 0, &audio_spec, &audio_spec, 0);
+	else
+		dev = SDL_OpenAudio(&audio_spec, &audio_spec);
+
+	if (dev < 0) {
 		fprintf(stderr, "Couldn't open audio: %s\n", SDL_GetError());
-		exit(-1);
+		return;
 	}
 	SDL_PauseAudio(0);
 }
 
-void Game::onAudio(float *buffer, unsigned int len, double time, SDL_AudioSpec& audio_spec)
+void Game::onAudio(float* buffer, unsigned int len, double time, SDL_AudioSpec& audio_spec)
 {
 	//fill the audio buffer using our custom retro synth
 	synth.generateAudio(buffer, len, audio_spec);

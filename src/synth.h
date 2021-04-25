@@ -92,9 +92,9 @@ class Synth {
 		SamplePlayback* playSample( Sample* sample, float volume = 0.2, bool loop = false);
 		SamplePlayback* playSample( std::string filename, float volume = 0.2, bool loop = false);
 		bool updateSamplesBuffer(SDL_AudioSpec& spec );
+		void stopAll();
 
 		static float getNoteFreq(int note) { return 440 * pow(2.0, (note - 69) / 12.0); }
-		void stopAll();
 };
 
 #endif

@@ -151,7 +151,7 @@ void Explication::render(Image& framebuffer) {
 		framebuffer.drawText("Tienes 10 segundos para jugar con el ", 1, 10, InsWorld->minifont, 4, 6);
 		framebuffer.drawText("jugador de la realidad incial paralela ", 1, 20, InsWorld->minifont, 4, 6);
 		framebuffer.drawText("y despues 10 segundos para el segundo", 1, 30, InsWorld->minifont, 4, 6);
-		framebuffer.drawText("jugador. ", 1, 40, InsWorld->minifont, 4, 6);
+		framebuffer.drawText("jugador de la otra realidad. ", 1, 40, InsWorld->minifont, 4, 6);
 		framebuffer.drawText("Debes desbloquear el puzzle para llegar", 1, 60, InsWorld->minifont, 4, 6);
 		framebuffer.drawText("a la entrada.", 1, 70, InsWorld->minifont, 4, 6);
 		if ((int)Insgame->time % 2)
@@ -608,7 +608,7 @@ void PauseLevel1to2::render(Image& framebuffer)
 
 	framebuffer.drawText("Nivel 2", 55, 50, InsWorld->font);
 	//audio next level
-	Insgame->synth.playSample("data/level.wav", 1, false);
+	Insgame->synth.playSample("data/level.wav", 0.2, false);
 
 	if ((int)Insgame->time % 2)
 		framebuffer.drawText("Pulsa Enter para continuar", 50, 110, InsWorld->minifont, 4, 6);

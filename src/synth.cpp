@@ -213,6 +213,7 @@ void Synth::stopAll()
 	for (int j = 0; j < MAX_PLAYBACK_SAMPLES; ++j)
 		samples_playback[j].in_use = false;
 }
+
 bool Synth::updateSamplesBuffer(SDL_AudioSpec& spec)
 {
 	bool playing = false;

@@ -64,8 +64,8 @@ public:
 	void onResize(int width, int height);
 
 	//audio stuff
-	void enableAudio(); //opens audio channel to play sound
-	void onAudio(float* buffer, unsigned int len, double time, SDL_AudioSpec &audio_spec); //called constantly to fill the audio buffer
+	void enableAudio(int device = -1); //opens audio channel to play sound
+	void onAudio(float* buffer, unsigned int len, double time, SDL_AudioSpec& audio_spec); //called constantly to fill the audio buffer
 
 	//intro
 	void bottonIntro(Image& framebuffer);
