@@ -395,7 +395,7 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 			Insplayer1->moving = true;
 		}	
 	}
-	if (InsWorld->level == 1 && target.x > 13 && target.x < 17 && target.y > 70)
+	if (InsWorld->level == 1 && target.x > 10 && target.x < 17 && target.y > 70)
 	{
 		if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
 		{
@@ -417,7 +417,7 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 
 		}
 	}
-	if (InsWorld->level == 1 && target.x > 13 && target.x < 17 && target.y > 60)
+	if (InsWorld->level == 1 && target.x > 10 && target.x < 17 && target.y > 60)
 	{
 		if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) //if key down
 		{
@@ -449,25 +449,6 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	
 	}
 	
-	//if (InsWorld->level == 1) {
-
-	//	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
-	//	{
-	//		target.x += Insplayer1->player_velocity * seconds_elapsed;
-	//		Insplayer1->dir = eDIRECTION::RIGHT;
-	//		Insplayer1->moving = true;
-
-	//	}
-
-	//	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) //if key left
-	//	{
-	//		target.x -= Insplayer1->player_velocity * seconds_elapsed;
-	//		Insplayer1->dir = eDIRECTION::LEFT;
-	//		Insplayer1->moving = true;
-
-	//	}
-
-	//}
 	//JUMP 
 	// Si pasan 0.5 segundos de haber apretado el espacio para saltar
 	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE) == false && Insplayer1->jump != 0.0f && Insgame->time > Insplayer1->jump + 0.2f)
@@ -552,6 +533,8 @@ void PauseLevel1to2::render(Image& framebuffer)
 	framebuffer.fill(Color(106, 151, 111));	//fills the image with one color
 
 	framebuffer.drawText("Level 2", 55, 50, InsWorld->font);
+	//audio next level
+	Insgame->synth.playSample("data/game_over.wav", 1, false);
 	if ((int)Insgame->time % 2)
 		framebuffer.drawText("Continue Press Enter", 80, 110, InsWorld->minifont, 4, 6);
 
@@ -585,6 +568,8 @@ void GameOver::render(Image& framebuffer)
 	framebuffer.fill(Color(106, 151, 111));								//fills the image with one color
 
 	framebuffer.drawText("GAME OVER", 50, 50, InsWorld->font);
+	//audio game_over
+	Insgame->synth.playSample("data/game_over.wav", 1, false);
 	if ((int)Insgame->time % 2)
 		framebuffer.drawText("Continue Press Enter", 80, 110, InsWorld->minifont, 4, 6);
 }
@@ -611,6 +596,8 @@ void Win::render(Image& framebuffer)
 
 	framebuffer.fill(Color(106, 151, 111));								//fills the image with one color
 	framebuffer.drawText("You Win", 55, 50, InsWorld->font);
+	//audio win
+	Insgame->synth.playSample("data/game_over.wav", 1, false);
 	if((int)Insgame->time % 2 )
 		framebuffer.drawText("Continue Press Enter", 80, 110, InsWorld->minifont, 4, 6);
 }
