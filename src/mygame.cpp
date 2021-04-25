@@ -74,6 +74,7 @@ void IntroStage::render(Image& framebuffer) {
 	//audio intro
 	Insgame->synth.playSample("data/lassambience1.wav", 2, true);
 
+
 	bottonIntro(framebuffer);
 }
 
@@ -130,7 +131,7 @@ void IntroStage::update(double seconds_elapsed)
 		}
 
 		InsWorld->timeGameing = Insgame->time; 
-		Insgame->synth.stopAll();
+	
 		Insgame->current_stage = Insgame->play_stage;
 	}
 }
@@ -138,6 +139,9 @@ void IntroStage::update(double seconds_elapsed)
 //Player
 void PlayStage::render(Image& framebuffer)
 {
+	Game* Insgame = Game::instance;
+
+	Insgame->synth.stopAll();
 	
 	framebuffer.fill(Color::CYAN);	//fills the image with one color
 	// render cells
@@ -534,7 +538,8 @@ void PauseLevel1to2::render(Image& framebuffer)
 
 	framebuffer.drawText("Level 2", 55, 50, InsWorld->font);
 	//audio next level
-	Insgame->synth.playSample("data/game_over.wav", 1, false);
+	Insgame->synth.playSample("data/level.wav", 1, false);
+
 	if ((int)Insgame->time % 2)
 		framebuffer.drawText("Continue Press Enter", 80, 110, InsWorld->minifont, 4, 6);
 
@@ -597,7 +602,7 @@ void Win::render(Image& framebuffer)
 	framebuffer.fill(Color(106, 151, 111));								//fills the image with one color
 	framebuffer.drawText("You Win", 55, 50, InsWorld->font);
 	//audio win
-	Insgame->synth.playSample("data/game_over.wav", 1, false);
+	Insgame->synth.playSample("data/win.wav", 1, false);
 	if((int)Insgame->time % 2 )
 		framebuffer.drawText("Continue Press Enter", 80, 110, InsWorld->minifont, 4, 6);
 }
