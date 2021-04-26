@@ -75,8 +75,6 @@ void IntroStage::render(Image& framebuffer) {
 	framebuffer.drawText("4 DIMENSION", framebuffer.width / 4, framebuffer.height / 5, InsWorld->font);
 	//audio intro
 	Insgame->synth.playSample("data/lassambience1.wav", 2, true);
-
-
 	bottonIntro(framebuffer);
 }
 
@@ -133,7 +131,6 @@ void IntroStage::update(double seconds_elapsed)
 		}
 
 		InsWorld->timeGameing = Insgame->time; 
-	
 		Insgame->current_stage = Insgame->explic_stage;
 	}
 }
@@ -146,14 +143,19 @@ void Explication::render(Image& framebuffer) {
 	World* InsWorld = Game::instance->my_world;
 	Insgame->synth.stopAll(); 
 	framebuffer.fill(Color(106, 151, 111));	//fills the image with one color
-
+	string text = "Tienes 10 segundos para jugar con el    jugador de la realidad incial paralela  y despues 10 segundos para el segundo   jugador de la otra realidad. ";
+	string text2 = "Debes desbloquear el puzzle para llegar a la entrada.";
+	string cad; 
 	if (InsWorld->nextImageIntro == false) {
-		framebuffer.drawText("Tienes 10 segundos para jugar con el ", 1, 10, InsWorld->minifont, 4, 6);
-		framebuffer.drawText("jugador de la realidad incial paralela ", 1, 20, InsWorld->minifont, 4, 6);
-		framebuffer.drawText("y despues 10 segundos para el segundo", 1, 30, InsWorld->minifont, 4, 6);
-		framebuffer.drawText("jugador de la otra realidad. ", 1, 40, InsWorld->minifont, 4, 6);
-		framebuffer.drawText("Debes desbloquear el puzzle para llegar", 1, 60, InsWorld->minifont, 4, 6);
-		framebuffer.drawText("a la entrada.", 1, 70, InsWorld->minifont, 4, 6);
+		for (int i = 0; i < 6; i++)
+		{
+			if (i < 4) 
+				cad = text.substr(40 * i, 39 * (i + 1));
+			else 
+				cad = text2.substr(40 * (i - 4), 39 * (i - 3));
+
+			framebuffer.drawText(cad, 1, 10 * (i + 1), InsWorld->minifont, 4, 6);
+		}
 		if ((int)Insgame->time % 2)
 			framebuffer.drawText("Pulsa Enter para continuar", 50, 110, InsWorld->minifont, 4, 6);
 	}
@@ -166,19 +168,11 @@ void Explication::render(Image& framebuffer) {
 		framebuffer.drawText("Reiniciar el juego ", 33, 95, InsWorld->minifont, 4, 6);
 		
 		framebuffer.drawImage(InsWorld->keyboard, 0, 0, framebuffer.width, framebuffer.height);			//draws a scaled image
-		//escalera
-		
+		//stairs 
 		framebuffer.drawImage(InsWorld->objects, 71, 40, Area(30, 0, 15, 27));
 		if ((int)Insgame->time % 2)
 			framebuffer.drawText("Pulsa Enter para continuar", 50, 110, InsWorld->minifont, 4, 6);
-	}
-
-	//framebuffer.drawText("4 DIMENSION", framebuffer.width / 4, framebuffer.height / 5, InsWorld->font);
-	////audio intro
-	//Insgame->synth.playSample("data/lassambience1.wav", 2, true);
-
-
-	
+	}	
 }
 
 void Explication::update(double seconds_elapsed)
@@ -193,7 +187,7 @@ void Explication::update(double seconds_elapsed)
 		InsWorld->nextImageIntro = true; 
 		InsWorld->timeGameing = Insgame->time;
 	}
-	//press entern 2 veces
+	//press enter 2 times
 	if (Input::isKeyPressed(SDL_SCANCODE_RETURN) && InsWorld->nextImageIntro == true && (InsWorld->timeGameing+0.2) < Insgame->time) //if key ENTER
 	{
 		InsWorld->timeGameing = Insgame->time;
@@ -239,7 +233,7 @@ void PlayStage::renderPlayers(Image& framebuffer)
 		}
 		InsWorld->contMov += 1;
 	}
-	// Si desaparece escalera, el personaje cae (gravedad)
+	// If the ladder disappears, the character falls (gravity)
 	if (InsWorld->level ==0 && InsWorld->objectEscalera == false && Insplayer1->pos.x >25 && Insplayer1->pos.x <= 41 && Insplayer1->pos.y > 25 && Insplayer1->pos.y < 90) 
 	{
 		Insplayer1->pos.y = 93; 
@@ -247,6 +241,7 @@ void PlayStage::renderPlayers(Image& framebuffer)
 	int currentAnimP1 = Insplayer1->moving ? (int(Insgame->time * Insplayer1->animation_velocity) % Insplayer1->animLenght) : 0;
 	framebuffer.drawImage(Insplayer1->Implayer, Insplayer1->pos.x, Insplayer1->pos.y, Area(14 * currentAnimP1, 18 * (int)Insplayer1->dir, 14, 18));
 	framebuffer.drawText(toString((int)(Insgame->time - InsWorld->timeGameing)), 1, 10, InsWorld->minifont, 4, 6);
+	enterTheCave(Insplayer1);
 
 }
 sPlayer* PlayStage::InstancePlayer() 
@@ -269,7 +264,6 @@ void PlayStage::renderCells(Image& framebuffer)
 	World* InsWorld = Game::instance->my_world;
 	GameMap* Insmap = Game::instance->my_world->map[InsWorld->level];
 	int cs = InsWorld->tileset.width / 16;
-	//Vector2 moviment = Vector2(16, -8);
 
 	for (int x = 0; x < Insmap->width; ++x)
 		for (int y = 0; y < Insmap->height; ++y)
@@ -303,7 +297,7 @@ void PlayStage::AppearObjects(Image& framebuffer)
 	vector<Vector2> InsList = Game::instance->my_world->movPlayer1;
 	int cont = Game::instance->my_world->contMov;
 
-	//pies del player
+	//player's feet
 	float x = Insplayer1->pos.x + 14;
 	float y = Insplayer1->pos.y + 18;
 
@@ -314,38 +308,34 @@ void PlayStage::AppearObjects(Image& framebuffer)
 	//LEVEL 1
 	if (InsWorld->level == 0) 
 	{
-		//Primer jugador
+		//First player
 		if (Insgame->time - InsWorld->timeGameing < TIME_GAME_PLAYER)
 		{
-			//si esta en la plataforma
+			// if it is on the platform
 			if (x >= 118 && x <= 146 && y >= 107 && y <= 112) {
-				//escalera
+				//stairs
 				framebuffer.drawImage(InsWorld->objects, 30, 40, Area(0, 0, 11, 72));
-				//plataforma
+				//platform
 				framebuffer.drawRectangle(115, 110, 20, 2, Color(147, 157, 148));
-				//Insgame->synth.playSample("data/bip.wav", 0.5, false);
 				InsWorld->objectEscalera = true;
-
 			}
 			else
 				framebuffer.drawRectangle(115, 107, 20, 5, Color(147, 157, 148));
 		}
-		//Jugador alpha, segundo jugador 
+		//Alpha player, second player
 		if (InsList.size() != 0 && cont < InsList.size() && Insgame->time - InsWorld->timeGameing >= TIME_GAME_PLAYER && 
 			Insgame->time - InsWorld->timeGameing < (TIME_GAME_PLAYER * 2)){
-			// pies del playerAlpha
+			// playerAlpha feet
 			float Alphx = InsList[cont].x + 14;
 			float Alphy = InsList[cont].y + 18;
-			//si esta en la plataforma
+			//if it is on the platform
 			if (Alphx >= 118 && Alphx <= 146 && Alphy >= 107 && Alphy <= 112 ||
 				x >= 118 && x <= 146 && y >= 107 && y <= 112) {
-				//escalera
+				//stairs
 				framebuffer.drawImage(InsWorld->objects, 30, 40, Area(0, 0, 11, 72));
 				InsWorld->objectEscalera = true; 
-				//plataforma
+				//platform
 				framebuffer.drawRectangle(115, 110, 20, 2, Color(147, 157, 148));
-				//Insgame->synth.playSample("data/bip.wav", 0.5, false);
-
 			}
 			else
 				framebuffer.drawRectangle(115, 107, 20, 5, Color(147, 157, 148));
@@ -354,7 +344,7 @@ void PlayStage::AppearObjects(Image& framebuffer)
 	//LEVEL 2
 	if (InsWorld->level == 1)
 	{
-		//escalera
+		//stairs
 		framebuffer.drawImage(InsWorld->objects, 15, 88, Area(30, 0, 15, 27));
 		//rock
 		rock_and_Plataform(framebuffer, 30, 110, 50, 112, 30, 1); 
@@ -372,10 +362,10 @@ void PlayStage::rock_and_Plataform(Image& framebuffer, int limitX, int limitY, i
 	int cont = Game::instance->my_world->contMov;
 	float x = Insplayer1->pos.x + 14;
 	float y = Insplayer1->pos.y + 18;
-	//Primer jugador
+	//First player
 	if (Insgame->time - InsWorld->timeGameing < TIME_GAME_PLAYER)
 	{
-		//esta en la plataforma
+		//if it is on the platform
 		if (x >= limitX+3 && x <= limitW+11 && y >= limitY && y <= limitH) {
 			framebuffer.drawImage(InsWorld->objects, RoackX, 26, Area(14, 0, 16, 33));
 			framebuffer.drawRectangle(limitX, limitY, 20, 2, Color(147, 157, 148));
@@ -388,12 +378,12 @@ void PlayStage::rock_and_Plataform(Image& framebuffer, int limitX, int limitY, i
 			framebuffer.drawRectangle(limitX, 107, 20, 5, Color(147, 157, 148));
 		}
 	}
-	//segundo jugador y alpha
+	//Alpha player, second player
 	if (InsList.size() != 0 && cont < InsList.size() && Insgame->time - InsWorld->timeGameing >= TIME_GAME_PLAYER &&
 		Insgame->time - InsWorld->timeGameing < (TIME_GAME_PLAYER * 2)) {
 		float Alphx = InsList[cont].x + 14;
 		float Alphy = InsList[cont].y + 18;
-		//esta a la plataforma
+		//if it is on the platform
 		if (Alphx >= limitX+3 && Alphx <= limitW+11 && Alphy >= limitY && Alphy <= limitH ||
 			x >= limitX+3 && x <= limitW+11 && y >= limitY && y <= limitH) {
 			framebuffer.drawImage(InsWorld->objects, RoackX, 26, Area(14, 0, 16, 33));
@@ -454,7 +444,7 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	Insplayer1->moving = false;
 		
 	Vector2 target = Insplayer1->pos;
-	//LEVEL 1: Solo puede UP si esta en la pos de la escalera y esta apretada la plataforma
+	//LEVEL 1: You can only UP if you are in the position of the ladder and the platform is tight
 	if (InsWorld->level == 0 && InsWorld->objectEscalera == true && target.x > 25 && target.x < 32 && target.y > 30)
 	{
 		if (Input::isKeyPressed(SDL_SCANCODE_UP)) //if key up
@@ -471,10 +461,9 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 			target.y -= Insplayer1->player_velocity * seconds_elapsed;
 			Insplayer1->dir = eDIRECTION::UP;
 			Insplayer1->moving = true;
-			//framebuffer.drawImage(InsWorld->objects, 17, 88, Area(30, 0, 15, 27));
 		}
 	}
-	//LEVEL 1: Solo puede DOWN si esta en la pos de la escalera y esta apretada la plataforma
+	//LEVEL 1: You can only DOWN if you are in the position of the ladder and the platform is pressed
 
 	if (InsWorld->level == 0 && InsWorld->objectEscalera == true && target.x > 25 && target.x < 32 && target.y > 20)
 	{
@@ -497,7 +486,7 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 		}
 	}
 
-	// si esta en la escalera no pueda ir a la derecha ni a la izquierda 
+	// if he's on the ladder he can't go to the right or to the left
 	if ((InsWorld->level == 0 && (target.y < 35 || target.y > 92) )|| (InsWorld->level == 1 && (target.y < 70 || target.y > 92)) ) {
 	
 		if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) //if key right
@@ -519,7 +508,7 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	}
 	
 	//JUMP 
-	// Si pasan 0.5 segundos de haber apretado el espacio para saltar
+	// If 0.2 seconds pass after pressing the space to jump
 	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE) == false && Insplayer1->jump != 0.0f && Insgame->time > Insplayer1->jump + 0.2f)
 	{
 		target.y += Insplayer1->pixelToJump; // Devolver en la misma posición original
@@ -527,7 +516,7 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 		Insplayer1->jump = 0.0f;
 		
 	}
-	// Solo puede apretar 1 vez el salto si aún no ha vuelto al puesto original
+	//You can only press the jump 1 time if you have not yet returned to the original position
 	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE) && Insplayer1->jump==0.0f)
 	{
 		target.y -= Insplayer1->pixelToJump;
@@ -538,25 +527,27 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	{
 		Insgame->current_stage = Insgame->game_over;
 	}
-	if (Input::wasKeyPressed(SDL_SCANCODE_W)) //if key O state: GAME OVER
+	if (Input::wasKeyPressed(SDL_SCANCODE_W)) //if key W state: Win
 	{
 		Insgame->current_stage = Insgame->win_stage;
 	}
 	if (Input::wasKeyPressed(SDL_SCANCODE_R)) //if key R state: intro
 	{
-		InsWorld->movPlayer1.clear();
-		InsWorld->contMov = 0;
-		InsWorld->level = 0; 
-		InsWorld->nextLevel = false; 
-		InsWorld->nextImageIntro = false; 
+		InsWorld->resetWorld();
 		Insgame->current_stage = Insgame->intro_stage;
 
 	}
-
+	//collisions
 	if (Insplayer1->isValid(target))
 		Insplayer1->pos = target; 
+}
 
+void PlayStage::enterTheCave(sPlayer* Insplayer1)
+{
+	Game* Insgame = Game::instance;
+	World* InsWorld = Game::instance->my_world;
 	int cs = InsWorld->tileset.width / 16;
+	//player's feet
 	int x[2];
 	int y = ((Insplayer1->pos.y + (18 * 1) - InsWorld->moviment.y) / cs);
 
@@ -564,13 +555,13 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 	{
 		x[i] = ((Insplayer1->pos.x + (14 * i) - InsWorld->moviment.x) / cs);
 		sCell celda = InsWorld->map[InsWorld->level]->getCell(x[i], y);
-		//Si entra a la cueva
+		// If he enters the cave
 		if (celda.type >= 14 && celda.type <= 17)
 		{
-			//va al Level 2, si pasa por la cueva y esta en el level 1
-			if(InsWorld->level == 0 && InsWorld->nextLevel == true)
+			// goes to Level 2, if it passes through the cave and is at level 1
+			if (InsWorld->level == 0 && InsWorld->nextLevel == true)
 				Insgame->current_stage = Insgame->pause_stage;
-			else { //Win state, si esta al level 2 y pasa por la cueva
+			else { // Win state, if it is at level 2 and goes through the cave
 				InsWorld->nextLevel = true;
 				InsWorld->movPlayer1.clear();
 				InsWorld->contMov = 0;
@@ -581,14 +572,14 @@ void PlayStage::update(double seconds_elapsed) { //movement of the character
 			}
 		}
 	}
-}
 
+}
 
 void  PlayStage::nextSteep() 
 {
 	Game* Insgame = Game::instance;
 	World* InsWorld = Game::instance->my_world;
-	//If no llega a cueva
+	// If it does not reach the cave
 	if (InsWorld->nextLevel == false)
 	{
 		InsWorld->movPlayer1.clear();
@@ -621,15 +612,11 @@ void PauseLevel1to2::update(double seconds_elapsed)
 	World* InsWorld = Game::instance->my_world;
 	if (Input::isKeyPressed(SDL_SCANCODE_RETURN)) //if key ENTER
 	{
-		InsWorld->nextLevel = true;
-		InsWorld->movPlayer1.clear();
-		InsWorld->contMov = 0;
+		InsWorld->resetWorld();
 		for (int i = 0; i < N_PLAYER; i++)
 		{
 			Game::instance->my_world->player[i] = sPlayer(InsWorld->playerReal); //incialitze player
 		}
-		InsWorld->timeGameing = Insgame->time;
-		InsWorld->nextLevel = false;
 		InsWorld->level = 1;
 		Insgame->current_stage = Insgame->play_stage;
 	}
@@ -655,12 +642,7 @@ void GameOver::update(double seconds_elapsed)
 	World* InsWorld = Game::instance->my_world;
 	if (Input::isKeyPressed(SDL_SCANCODE_RETURN)) //if key ENTER
 	{
-		InsWorld->movPlayer1.clear();
-		InsWorld->contMov = 0;
-		InsWorld->timeGameing = Insgame->time;
-		InsWorld->nextLevel = false;
-		InsWorld->level = 0;
-		InsWorld->nextImageIntro = false;
+		InsWorld->resetWorld();
 		Insgame->current_stage = Insgame->intro_stage;		
 	}
 }
@@ -684,16 +666,25 @@ void Win::update(double seconds_elapsed)
 	World* InsWorld = Game::instance->my_world;
 	if (Input::isKeyPressed(SDL_SCANCODE_RETURN)) //if key up
 	{
-		InsWorld->movPlayer1.clear();
-		InsWorld->contMov = 0;
-		InsWorld->timeGameing = Insgame->time;
-		InsWorld->nextLevel = false;
-		InsWorld->level = 0;
-		InsWorld->nextImageIntro = false;
+		InsWorld->resetWorld();
 		Insgame->current_stage = Insgame->intro_stage;
 	}
 }
 
+//World
+void World::resetWorld() 
+{
+	World* InsWorld = Game::instance->my_world;
+	Game* Insgame = Game::instance;
+
+	InsWorld->movPlayer1.clear();
+	InsWorld->contMov = 0;
+	InsWorld->timeGameing = Insgame->time;
+	InsWorld->nextLevel = false;
+	InsWorld->level = 0;
+	InsWorld->nextImageIntro = false;
+
+}
 //Gamemap
 GameMap* GameMap::loadGameMap(const char* filename)
 {
@@ -738,7 +729,6 @@ bool sPlayer::isValid(Vector2 positionPlayer)
 	for (int i = 0; i < 2; i++)
 	{
 		x[i] = ((positionPlayer.x +(14 *i) - InsWorld->moviment.x) / cs);
-
 	}	   
 	for (int i = 0; i < 2; i++)
 	{
@@ -751,54 +741,31 @@ bool sPlayer::isValid(Vector2 positionPlayer)
 	//LEVEL 2
 	if (InsWorld->level == 1) 
 	{
-		if (InsWorld->objectsRock == 0) 
+		for (int i = 0; i < 2; i++)
 		{
-			for (int i = 0; i < 2; i++)
-			{
-				if (((positionPlayer.y + 18) < 90 && (positionPlayer.y + 18) >= 56) &&
-					((positionPlayer.x + (14 * i) >= 35 && (positionPlayer.x + (14 * i) <= 40))||
-					(positionPlayer.x + (14 * i) >= 60 && (positionPlayer.x + (14 * i) <= 65)) || 
-					(positionPlayer.x + (14 * i) >= 85 && (positionPlayer.x + (14 * i) <= 90))))
+			//rocas bajadas no puede pasar
+			if (InsWorld->objectsRock == 0 && (((positionPlayer.y + 18) < 90 && (positionPlayer.y + 18) >= 56) &&
+				((positionPlayer.x + (14 * i) >= 35 && (positionPlayer.x + (14 * i) <= 40))||
+				(positionPlayer.x + (14 * i) >= 60 && (positionPlayer.x + (14 * i) <= 65)) || 
+				(positionPlayer.x + (14 * i) >= 85 && (positionPlayer.x + (14 * i) <= 90)))))
 				
-					return false;
-			}
-		}
-		if (InsWorld->objectsRock == 1) 
-		{
-			for (int i = 0; i < 2; i++)
-			{
-				if (((positionPlayer.y + 18) < 90 && (positionPlayer.y + 18) >= 56) &&
-					((positionPlayer.x + (14 * i) >= 60 && (positionPlayer.x + (14 * i) <= 65)) ||
-						(positionPlayer.x + (14 * i) >= 85 && (positionPlayer.x + (14 * i) <= 90))))
-					return false;
-			}
-		
-		}
-		if (InsWorld->objectsRock == 2) 
-		{
-			for (int i = 0; i < 2; i++)
-			{
-				if (((positionPlayer.y + 18) < 90 && (positionPlayer.y + 18) >= 56) &&
-					((positionPlayer.x + (14 * i) >= 35 && (positionPlayer.x + (14 * i) <= 40)) ||
-						(positionPlayer.x + (14 * i) >= 85 && (positionPlayer.x + (14 * i) <= 90))))
-					return false;
-			}
-		
-		
-		}
-		if (InsWorld->objectsRock == 3) 
-		{
-			for (int i = 0; i < 2; i++)
-			{
-				if (((positionPlayer.y + 18) < 90 && (positionPlayer.y + 18) >= 56) &&
-					((positionPlayer.x + (14 * i) >= 35 && (positionPlayer.x + (14 * i) <= 40)) ||
-						(positionPlayer.x + (14 * i) >= 60 && (positionPlayer.x + (14 * i) <= 65))))
-					return false;
-				
-			}
-		
-		}
-	
+				return false;
+
+			if (InsWorld->objectsRock == 1 && (((positionPlayer.y + 18) < 90 && (positionPlayer.y + 18) >= 56) &&
+				((positionPlayer.x + (14 * i) >= 60 && (positionPlayer.x + (14 * i) <= 65)) ||
+					(positionPlayer.x + (14 * i) >= 85 && (positionPlayer.x + (14 * i) <= 90)))))
+				return false;
+
+			if (InsWorld->objectsRock == 2 && (((positionPlayer.y + 18) < 90 && (positionPlayer.y + 18) >= 56) &&
+				((positionPlayer.x + (14 * i) >= 35 && (positionPlayer.x + (14 * i) <= 40)) ||
+					(positionPlayer.x + (14 * i) >= 85 && (positionPlayer.x + (14 * i) <= 90)))))
+				return false;
+
+			if (InsWorld->objectsRock == 3 && (((positionPlayer.y + 18) < 90 && (positionPlayer.y + 18) >= 56) &&
+				((positionPlayer.x + (14 * i) >= 35 && (positionPlayer.x + (14 * i) <= 40)) ||
+					(positionPlayer.x + (14 * i) >= 60 && (positionPlayer.x + (14 * i) <= 65)))))
+				return false;
+		}	
 	}
 	//El personaje no puede salir del framework
 	for (int i = 0; i < 2; i++)
@@ -806,7 +773,6 @@ bool sPlayer::isValid(Vector2 positionPlayer)
 		if ((positionPlayer.y < 0 || (positionPlayer.y + 18) > InsButton->h_framework ||
 			((positionPlayer.x + (14 * i) < 0 || (positionPlayer.x + (14 * i) >= InsButton->w_framework)))))
 			return false;
-		
 	}
 
 	return true;

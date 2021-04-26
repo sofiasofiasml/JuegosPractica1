@@ -15,10 +15,7 @@ using namespace std;
 #define TIME_GAME_PLAYER     10.0f
 
 enum eCellType : uint8 {
-	EMPTY, START,
-	WALL,
-	DOOR,
-	CHEST, 
+	EMPTY, 
 	FLOOR = 11,
 	PLATAFORM = 18,
 	PLATAFORM2 = 9,
@@ -138,6 +135,7 @@ public:
 	sButton inicio;
 
 	World(); 
+	void resetWorld(); 
 };
 class Stage {
 
@@ -161,6 +159,7 @@ public:
 	void renderCells(Image& framebuffer);
 	void renderPlayers(Image& framebuffer);
 	void rock_and_Plataform(Image& framebuffer, int limitX, int limitY, int limitW, int limitH, int RoackX, int numRock);
+	void enterTheCave(sPlayer* Insplayer1);
 	sPlayer* InstancePlayer();
 	void nextSteep(); 
 };

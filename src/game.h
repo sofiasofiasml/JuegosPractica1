@@ -67,8 +67,6 @@ public:
 	void enableAudio(int device = -1); //opens audio channel to play sound
 	void onAudio(float* buffer, unsigned int len, double time, SDL_AudioSpec& audio_spec); //called constantly to fill the audio buffer
 
-	//intro
-	void bottonIntro(Image& framebuffer);
 };
 
 
