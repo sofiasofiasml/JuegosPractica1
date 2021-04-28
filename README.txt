@@ -1,4 +1,4 @@
-Sofia Martínez López NIA: 194770 sofia.martinez02@estudiant.upf.edu
+Sofia Martínez López 
 
 vídeo youtube: https://youtu.be/MN5R1tFdyy4
 
